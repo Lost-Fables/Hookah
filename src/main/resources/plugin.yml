@@ -1,0 +1,39 @@
+name: Hookah
+main: net.lordofthecraft.HookahMain
+version: 1.0
+author: dsdevil
+
+commands:
+    hookah:
+        description: displays commands for the hookah plugin
+        usage: /hookah
+
+permissions:
+    hookah.dev:
+        description: dev permissions (not GM)
+        children:
+            hookah.listcommands: true
+            hookah.listscenarios: true
+            hookah.givescenario: true
+            hookah.listrecipes: true
+            hookah.getdrug: true
+            hookah.gethookah: true
+        default: op
+    hookah.listcommands:
+        description: List all the commands in this plugin
+        default: op
+    hookah.listscenarios:
+        description: Lists the name of all possible scenarios
+        default: op
+    hookah.givescenario:
+        description: Applies a scenario to a player
+        default: op
+    hookah.listrecipes:
+        description: Lists all drug recipes
+        default: op
+    hookah.getdrug:
+        description: Gives you 1 of the specified drug
+        default: op
+    hookah.gethookah:
+        description: Gives you a hoo-kah
+        default: op

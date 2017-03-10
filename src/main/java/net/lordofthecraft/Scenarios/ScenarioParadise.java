@@ -37,27 +37,30 @@ public class ScenarioParadise extends Scenario{
 			"http://textures.minecraft.net/texture/884e92487c6749995b79737b8a9eb4c43954797a6dd6cd9b4efce17cf475846", //red
 	};
 	
+	private List<FloatingHead> floatingHeads = new ArrayList<>();
+	private List<FloatingCow> floatingCows = new ArrayList<>();
+	
+	private BukkitTask summonTask, durationTask;
+	private List<BukkitTask> tasksForCleanUp = new ArrayList<>(); //Holds every extra task incase we need to clean up early
+	
 	public boolean play() {
-		List<FloatingHead> floatingHeads = new ArrayList<>();
-		List<FloatingCow> floatingCows = new ArrayList<>();
-		
 		PacketHandler.toggleRedTint(player, true);
 		player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 800, 1), true);
 		player.playSound(player.getLocation(), Sound.RECORD_CHIRP, 1f, 1f);
 		
 		//Spawn the 3 cows that circle the player's head
 		for (int i = 0; i < 3; i++) {
-			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
+			tasksForCleanUp.add(Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
 				public void run() {
 					FloatingCow cow = new FloatingCow();
 					cow.startFloating();
 					floatingCows.add(cow);
 				}
-			}, 16 * i);
+			}, 16 * i));
 		}
 		
 		//Repeating task that summons a floating head every tick
-		BukkitTask summonTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		summonTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
 			public void run() {
 				//generates a random position in a 32x12x32 cube around the player
 				Location startPosition = new Location(player.getWorld(), 
@@ -68,7 +71,7 @@ public class ScenarioParadise extends Scenario{
 			}
 		}, 0, 1);
 		//Task that cleans everything once the scenario is over.
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+		durationTask = Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run() {
 				summonTask.cancel();
 				
@@ -90,6 +93,21 @@ public class ScenarioParadise extends Scenario{
 		return true;
 	}
 	
+	//Used to force stop this scenario
+	public void remove() {
+		for (BukkitTask task: tasksForCleanUp) {
+			task.cancel();
+		}
+		summonTask.cancel();
+		for (FloatingHead floatingHead: floatingHeads) {
+			floatingHead.remove();
+		}
+		for (FloatingCow floatingCow: floatingCows) {
+			floatingCow.remove();
+		}
+		durationTask.cancel();
+	}
+	
 	private ItemStack getRandomDecoration() {
 		return getSkull(headURLs[random.nextInt(headURLs.length)]);
 	}
@@ -106,7 +124,7 @@ public class ScenarioParadise extends Scenario{
 			head = new EntityArmorStand(((CraftWorld) loc.getWorld()).getHandle());
 			head.setLocation(loc.getX(), loc.getY(), loc.getZ(), 0, 0);
 			head.setInvisible(true);
-			PacketHandler.spawnFakeLivingEntity(player, head);
+			PacketHandler.spawnNMSLivingEntity(player, head);
 			
 			centerY = head.locY;
 			intensity = (Math.random() * 4) + 1;
@@ -151,7 +169,7 @@ public class ScenarioParadise extends Scenario{
 			cow.setLocation(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(), 0, 0);
 			cow.setCustomName(rainbowColoredName("Disco Cow"));
 			cow.setCustomNameVisible(true);
-			PacketHandler.spawnFakeLivingEntity(player, cow);
+			PacketHandler.spawnNMSLivingEntity(player, cow);
 		}
 		
 		private void startFloating() {

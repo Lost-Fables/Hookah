@@ -1,10 +1,13 @@
 package net.lordofthecraft;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -14,6 +17,7 @@ import com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment;
 import com.comphenix.packetwrapper.WrapperPlayServerEntityLook;
 import com.comphenix.packetwrapper.WrapperPlayServerEntityTeleport;
 import com.comphenix.packetwrapper.WrapperPlayServerMultiBlockChange;
+import com.comphenix.packetwrapper.WrapperPlayServerSpawnEntityLiving;
 import com.comphenix.packetwrapper.WrapperPlayServerWorldBorder;
 import com.comphenix.packetwrapper.WrapperPlayServerWorldParticles;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
@@ -32,8 +36,21 @@ import net.minecraft.server.v1_11_R1.PacketPlayOutSpawnEntityLiving;
  */
 public abstract class PacketHandler {
 	//Sadly uses NMS
-	public static void spawnFakeLivingEntity (Player player, EntityLiving entity) {
+	public static void spawnNMSLivingEntity (Player player, EntityLiving entity) {
 		((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutSpawnEntityLiving(entity));
+	}
+	
+	public static void spawnLivingEntity (Player player, Entity entity) {
+		WrapperPlayServerSpawnEntityLiving packet = new WrapperPlayServerSpawnEntityLiving();
+		packet.setEntityID(entity.getEntityId());
+		packet.setType(entity.getType());
+		packet.setUniqueId(entity.getUniqueId());
+		packet.setX(entity.getLocation().getX());
+		packet.setY(entity.getLocation().getY());
+		packet.setZ(entity.getLocation().getZ());
+		packet.setYaw(entity.getLocation().getYaw());
+		packet.setPitch(entity.getLocation().getPitch());
+		packet.sendPacket(player);
 	}
 	
 	public static void removeFakeMobs (Player player, int[] mobs) {

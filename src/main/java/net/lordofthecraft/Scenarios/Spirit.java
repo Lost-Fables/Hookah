@@ -92,7 +92,7 @@ public class Spirit {
 		spiritName.setInvisible(true);
 		spiritName.setNoGravity(true);
 		
-		PacketHandler.spawnFakeLivingEntity(player, spiritName);
+		PacketHandler.spawnNMSLivingEntity(player, spiritName);
 		
 		return spiritName;
 	}

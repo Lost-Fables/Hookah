@@ -165,7 +165,9 @@ public class Listeners implements Listener{
 	
 	@EventHandler //Cancel scenario when player logs out
 	public void onPlayerQuit(PlayerQuitEvent e) {
-		if (Scenario.getActiveScenarios().contains(e.getPlayer().getUniqueId()))
+		if (Scenario.getActiveScenarios().containsKey(e.getPlayer().getUniqueId())) {
+			Scenario.getActiveScenarios().get(e.getPlayer().getUniqueId()).remove();
 			Scenario.getActiveScenarios().remove(e.getPlayer().getUniqueId());
+		}
 	}
 }

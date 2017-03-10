@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
 
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 
@@ -29,12 +30,11 @@ public class ScenarioHeads extends Scenario {
 	
 	final private String popUpSkinURL = "http://textures.minecraft.net/texture/f4edb1f1ef2ba92ccceb3ddd927c1d4d3ff4635f61cca697efa914ca2e688";
 	private int interval = 40; //Time in ticks until the next time blindness is toggled
-	private int rapidFlashingTask;
+	
+	private List<Spirit> heads = new ArrayList<Spirit>();
+	private BukkitTask flashTask, rapidFlashingTask, durationTask;
 	
 	public boolean play() {
-		
-		List<Spirit> heads = new ArrayList<Spirit>();
-		
 		PacketHandler.toggleRedTint(player, true);
 		
 		//Spawns 20 floating heads over the course of the scenario
@@ -56,13 +56,13 @@ public class ScenarioHeads extends Scenario {
 		flashBlindness(); //Starts the blindness flashing
 		
 		//Mega task that manages all the events of this scenario
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+		durationTask = Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run () {
 				for (Spirit head: heads) {
 					head.remove(player);
 				}
 				
-				Bukkit.getServer().getScheduler().cancelTask(rapidFlashingTask);
+				rapidFlashingTask.cancel();
 				player.removePotionEffect(PotionEffectType.BLINDNESS);
 				
 				//Place the popUp 1 block away from the player's face and have it facing the player.
@@ -72,7 +72,7 @@ public class ScenarioHeads extends Scenario {
 				EntityArmorStand popUp = new EntityArmorStand(((CraftWorld) player.getWorld()).getHandle());
 				popUp.setLocation(popUpLocation.getX(), popUpLocation.getY(), popUpLocation.getZ(), popUpLocation.getYaw(), popUpLocation.getPitch());
 				popUp.setInvisible(true);
-				PacketHandler.spawnFakeLivingEntity(player, popUp);
+				PacketHandler.spawnNMSLivingEntity(player, popUp);
 				
 				//Prevent movement
 				player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 60, 254));
@@ -87,7 +87,7 @@ public class ScenarioHeads extends Scenario {
 				}, 2);
 				
 				//Cleans and clears everything. Ends the scenario.
-				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+				Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 					public void run () {
 						player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 1));
 						PacketHandler.removeFakeMobs(player, new int[]{popUp.getId()});
@@ -101,10 +101,20 @@ public class ScenarioHeads extends Scenario {
 		return true;
 	}
 	
+	//Used to force stop the scenario
+	public void remove() {
+		for (Spirit head: heads) {
+			head.remove(player);
+		}
+		flashTask.cancel();
+		rapidFlashingTask.cancel();
+		durationTask.cancel();
+	}
+	
 	//TODO I really hate the way I made this
 	private void flashBlindness() {
 		if (--interval > 3)
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+			flashTask = Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 				public void run () {
 					if (new Random().nextInt(2) == 0)
 						player.playSound(player.getLocation(), Sound.ENTITY_WITHER_AMBIENT, SoundCategory.VOICE, 1f, 1f);
@@ -113,7 +123,7 @@ public class ScenarioHeads extends Scenario {
 				}
 			}, interval);
 		else
-			rapidFlashingTask = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(HookahMain.plugin, new Runnable() {
+			rapidFlashingTask = Bukkit.getServer().getScheduler().runTaskTimer(HookahMain.plugin, new Runnable() {
 				public void run () {
 					player.playSound(player.getLocation(), Sound.ENTITY_WITHER_AMBIENT, SoundCategory.VOICE, 1f, 1f);
 					toggleBlindness();

@@ -21,6 +21,8 @@ public class ScenarioSpin extends Scenario {
 
 	private float speed = 0;
 	
+	private BukkitTask rotateTask, soundTask, durationTask;
+	
 	public boolean play() {
 		PacketHandler.toggleRedTint(player, true);
 		player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 860, 2));
@@ -37,7 +39,7 @@ public class ScenarioSpin extends Scenario {
 		}, 60);
 		
 		//Rotates the camera linearly faster every tick
-		BukkitTask rotateTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		rotateTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
 			public void run() {
 				speed += 0.03f;
 				camera.yaw = spinYaw(camera.yaw, speed);
@@ -46,14 +48,14 @@ public class ScenarioSpin extends Scenario {
 		}, 0, 1);
 		
 		//Plays the elyrta flight sound throughout the scenario
-		BukkitTask soundTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		soundTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
 			public void run() {
 				player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, 0.5f, 1f);
 			}
 		}, 220, 180);
 		
 		//Ends the scenario after a certain amount of time
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+		durationTask = Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run () {
 				rotateTask.cancel();
 				soundTask.cancel();
@@ -69,6 +71,12 @@ public class ScenarioSpin extends Scenario {
 		return true;
 	}
 	
+	public void remove() {
+		rotateTask.cancel();
+		soundTask.cancel();
+		durationTask.cancel();
+	}
+	
 	private EntityArmorStand initCamera() {
 		Location loc = player.getLocation();
 		loc.setY(loc.getY() + 0.5);
@@ -77,7 +85,7 @@ public class ScenarioSpin extends Scenario {
 		camera.setInvisible(true);
 		camera.setLocation(loc.getX(), loc.getY(), loc.getZ(), player.getLocation().getYaw(), 0);
 		camera.setNoGravity(true);
-		PacketHandler.spawnFakeLivingEntity(player, camera);
+		PacketHandler.spawnNMSLivingEntity(player, camera);
 		
 		return camera;
 	}

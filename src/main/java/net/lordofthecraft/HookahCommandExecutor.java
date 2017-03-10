@@ -4,7 +4,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
 import org.bukkit.inventory.ItemStack;
 
 import net.lordofthecraft.Scenarios.Scenario;
@@ -159,14 +162,12 @@ public class HookahCommandExecutor implements CommandExecutor {
 		if (sender instanceof Player) {
 			sender.sendMessage(ChatColor.GOLD + "[HooKah] " + ChatColor.WHITE + "Commands: ");
 			sender.sendMessage(ChatColor.GOLD + "- scenarios: " + ChatColor.WHITE + "lists all possible scenarios");
-			sender.sendMessage(ChatColor.GOLD + "- giveScenario <name> <player>: " + ChatColor.WHITE + "applies a scenario to a player");
 			sender.sendMessage(ChatColor.GOLD + "- recipes: " + ChatColor.WHITE + "lists all drug recipes");
 			sender.sendMessage(ChatColor.GOLD + "- getDrug <name>: " + ChatColor.WHITE + "gives you 1 drug of this name");
 			sender.sendMessage(ChatColor.GOLD + "- getHookah: " + ChatColor.WHITE + "gives you a Hoo-Kah");
 		} else {
 			plugin.getLogger().info("Commands: ");
 			plugin.getLogger().info("- scenarios: lists all possible scenarios");
-			plugin.getLogger().info("- giveScenario <name> <player>: applies a scenario to a player");
 			plugin.getLogger().info("- recipes: lists all drug recipes");
 			plugin.getLogger().info("- getDrug <name>: gives you 1 drug of this name");
 			plugin.getLogger().info("- getHookah: gives you a Hoo-Kah");

@@ -25,6 +25,8 @@ public class ScenarioDragon extends Scenario{
 		super(player);
 	}
 	
+	private BukkitTask soundTask, elytraSoundTask, flightTask, durationTask;
+	
 	public boolean play() {
 		PacketHandler.toggleRedTint(player, true);
 		centerLoc = player.getLocation();
@@ -45,13 +47,13 @@ public class ScenarioDragon extends Scenario{
 		EntityZombie camera = new EntityZombie(((CraftWorld) player.getWorld()).getHandle());
 		camera.setInvisible(true);
 		camera.setLocation(centerLoc.getX(), centerLoc.getY(), centerLoc.getZ(), 0, 0);
-		PacketHandler.spawnFakeLivingEntity(player, camera);
+		PacketHandler.spawnNMSLivingEntity(player, camera);
 		
 		//Spawns the dragon
 		EntityEnderDragon dragon = new EntityEnderDragon(((CraftWorld) player.getWorld()).getHandle());
 		dragon.setSilent(true);
 		dragon.setLocation(centerLoc.getX(), centerLoc.getY(), centerLoc.getZ(), 0, 0);
-		PacketHandler.spawnFakeLivingEntity(player, dragon);
+		PacketHandler.spawnNMSLivingEntity(player, dragon);
 		
 		player.playSound(player.getLocation().subtract(0, 5, 0), Sound.ENTITY_ENDERDRAGON_GROWL, 1f, 1f);
 		//Delay moving the player's camera to give the dragon time to spawn
@@ -62,21 +64,21 @@ public class ScenarioDragon extends Scenario{
 		}, 60);
 		
 		//Task that plays random sounds during the flight
-		BukkitTask soundTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		soundTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
 			public void run() {
 				playRandomAmbientSound();
 			}
 		}, 60, 60);
 		
 		//Plays the elytra flight sound during the scenario
-		BukkitTask elytraSoundTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		elytraSoundTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
 			public void run() {
 				player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, 0.5f, 1f);
 			}
 		}, 60, 180);
 		
 		//Task that makes the dragon moves around
-		BukkitTask flightTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		flightTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
 			public void run() {
 				Location previousLoc = new Location(player.getWorld(), camera.locX, camera.locY, camera.locZ);
 				yPos += Math.PI/36;			
@@ -106,17 +108,17 @@ public class ScenarioDragon extends Scenario{
 		}, 0, 1);
 		
 		//Task that ends the scenario
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+		durationTask = Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run() {
 				PacketHandler.removeFakeMobs(player, new int[]{camera.getId(), dragon.getId()});
 				PacketHandler.moveCamera(player, player.getEntityId());
 				PacketHandler.toggleRedTint(player, false);
-				player.stopSound(Sound.ITEM_ELYTRA_FLYING);
-				player.stopSound(Sound.ENTITY_ENDERDRAGON_GROWL);
-				player.stopSound(Sound.ENTITY_ENDERDRAGON_FLAP);
 				soundTask.cancel();
 				elytraSoundTask.cancel();
 				flightTask.cancel();
+				player.stopSound(Sound.ITEM_ELYTRA_FLYING);
+				player.stopSound(Sound.ENTITY_ENDERDRAGON_GROWL);
+				player.stopSound(Sound.ENTITY_ENDERDRAGON_FLAP);
 				player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
 				activeScenarios.remove(player.getUniqueId());
 			}
@@ -125,10 +127,18 @@ public class ScenarioDragon extends Scenario{
 		return true;
 	}
 	
+	//Used to force stop the scenario
+	public void remove() {
+		soundTask.cancel();
+		elytraSoundTask.cancel();
+		flightTask.cancel();
+		durationTask.cancel();
+	}
+	
 	private void playRandomAmbientSound() {
 		if (random.nextInt(6) == 0)
 			player.playSound(player.getLocation(), Sound.ENTITY_ENDERDRAGON_GROWL, 1f, 1f);
-		else if (random.nextInt() > 2)
+		else if (random.nextInt() > 1)
 			playWingsFlappingSound();			
 	}
 	

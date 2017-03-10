@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitTask;
 import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
 
 import net.lordofthecraft.HookahMain;
+import net.lordofthecraft.PacketHandler;
 import net.md_5.bungee.api.ChatColor;
 
 public class ScenarioBrother extends Scenario {
@@ -35,13 +36,18 @@ public class ScenarioBrother extends Scenario {
 		}
 	}
 	
+	private BukkitTask emoteTask, durationTask;
+	private Spirit brother;
+	
 	public boolean play() {
-		Spirit brother = new Spirit();
+		PacketHandler.toggleRedTint(player, true);
+		
+		brother = new Spirit();
 		brother.spawn(player, Particle.CLOUD, Particle.SLIME, 1, ChatColor.AQUA + "Kindred Spirit");
 		player.playSound(player.getLocation(), Sound.ENTITY_CAT_PURR, SoundCategory.VOICE, 1f, 1f);
 		
 		//Sends a random emote to the player every so often
-		BukkitTask emoteTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable(){
+		emoteTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable(){
 			public void run() {
 				randomPurrSound();
 				if (random.nextInt(5) == 0) 
@@ -50,8 +56,9 @@ public class ScenarioBrother extends Scenario {
 		}, 200, 200);
 		
 		//Task that ends the scenario
-		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable(){
+		durationTask = Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable(){
 			public void run() {
+				PacketHandler.toggleRedTint(player, false);
 				brother.remove(player);
 				emoteTask.cancel();
 				activeScenarios.remove(player.getUniqueId());
@@ -59,6 +66,13 @@ public class ScenarioBrother extends Scenario {
 		}, 3600);
 		
 		return true;
+	}
+	
+	//Used to force stop the scenario
+	public void remove() {
+		durationTask.cancel();
+		emoteTask.cancel();
+		brother.remove(player);
 	}
 	
 	private void randomPurrSound() {

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,6 +16,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import io.github.archemedes.customitem.Customizer;
 import net.lordofthecraft.Scenarios.Scenario.Scenarios;
 
 public class HookahMain extends JavaPlugin{
@@ -52,7 +54,7 @@ public class HookahMain extends JavaPlugin{
 	
 	//saves data to the config.yml and locations.yml files
 	public void saveDataToFile() {
-		saveLocations();
+		saveHookahs();
 		for (Recipe recipe: Recipe.getRecipes()) {
 			String id = String.valueOf(recipe.getId());
 			this.getConfig().set("recipes." + id + ".ingredients", recipe.getIngredientsToString());
@@ -71,8 +73,6 @@ public class HookahMain extends JavaPlugin{
 	
 	//loads data from the config.yml and locations.yml files
 	public void loadDataFromFile() {
-		loadLocations();
-		
 		ConfigurationSection section = this.getConfig().getConfigurationSection("recipes");
 		if (section == null) return;
 		
@@ -97,34 +97,73 @@ public class HookahMain extends JavaPlugin{
 				}
 			}
 		}
+		loadHookahs();
 	}
 	
 	//save hoo-kah locations into a locations.yml file
-	private void saveLocations() {
+	private void saveHookahs() {
 		validateLocations();
-		FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "locations.yml"));
-		List<String> locations = new ArrayList<>();
+		FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "hookahs.yml"));
 		for (Location loc: Hookah.getLocations()) {
-			locations.add( //"world;x;y;z"
-					loc.getWorld().getName() + ";" + loc.getBlockX() + ";" + loc.getBlockY() + ";" + loc.getBlockZ());
+			Hookah hookah = Hookah.getHookah(loc);
+			String drugName = "None";
+			if (hookah.getCurrentDrug() != null)
+				drugName = hookah.getCurrentDrug().getName();
+			//"world;x;y;z;currentdrug;charges"/
+			String location = loc.getWorld().getName() + ";" + loc.getBlockX() + ";" + loc.getBlockY() + ";" + loc.getBlockZ() + ";" + 
+						drugName + ";" + hookah.getCharges();
+			locationsFile.set("locations." + location, "");
+			
+			//Serialize items inside the hookah
+			List<Map<String,Object>> data = new ArrayList<>();
+			for (Integer itemPos: hookah.getIngredientSlots()) { //Ingredient Slots
+				data.add(Customizer.serialize(hookah.getInventory().getItem(itemPos)));
+			}
+			if (hookah.getInventory().getItem(16) != null) //Drug Slot
+				data.add(Customizer.serialize(hookah.getInventory().getItem(16)));
+			
+			locationsFile.set("locations." + location, data);
 		}
-		locationsFile.set("locations", locations);
 		try {
-			locationsFile.save(new File(getDataFolder(), "locations.yml"));
+			locationsFile.save(new File(getDataFolder(), "hookahs.yml"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	//load hoo-kah locations from a locations.yml file
-	private void loadLocations() {
-		for (String loc: YamlConfiguration.loadConfiguration(
-				new File(getDataFolder(), "locations.yml")).getStringList("locations")) {
-			String[] data = loc.split(";");
-			Hookah.addHookah(new Location(Bukkit.getWorld(data[0]),
-					Double.parseDouble(data[1]),
-					Double.parseDouble(data[2]),
-					Double.parseDouble(data[3])), new Hookah());
+	private void loadHookahs() {
+		FileConfiguration hookahsFile = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "hookahs.yml"));
+		ConfigurationSection sec = hookahsFile.getConfigurationSection("locations");
+		
+		if (sec.getKeys(false).size() != 0) {
+			for (String key : sec.getKeys(false)) {
+				String[] data = key.split(";");
+				Hookah hookah = new Hookah();
+				hookah.setCurrentDrug(null);
+				hookah.setCharges(0);
+				
+				for (Recipe recipe: Recipe.getRecipes()) {
+					if (recipe.getName().equalsIgnoreCase(data[4])) {
+						hookah.setCurrentDrug(recipe);
+						hookah.setCharges(Integer.parseInt(data[5]));
+						break;
+					}		
+				}
+				
+				Hookah.addHookah(new Location(Bukkit.getWorld(data[0]),
+						Double.parseDouble(data[1]),
+						Double.parseDouble(data[2]),
+						Double.parseDouble(data[3])), hookah);
+				
+				//Deserialize items that were inside the hookah
+				int slot = 10;
+				for (Map<?, ?> itemData: hookahsFile.getMapList("locations." + key)) {
+					hookah.getInventory().setItem(slot, Customizer.deserialize((Map<String, Object>) itemData));
+					slot++;
+					if (slot == 14) slot = 16;
+				}
+			}
 		}
 	}
 	

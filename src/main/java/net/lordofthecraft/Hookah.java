@@ -54,14 +54,14 @@ public class Hookah {
 	/**
 	 * Only returns ingredient slots that contain an ItemStack
 	 * @return List of slot id values that contain ingredients, null if empty
-	 */
+	 */ //TODO rewrite this to return List<ItemStack>
 	public List<Integer> getIngredientSlots() {
 		List<Integer> slots = new ArrayList<>();
 		for (int slot = 10; slot <= 13; slot++) {
 			if (inventory.getItem(slot) == null || inventory.getItem(slot).getItemMeta() == null) continue;
 			slots.add(slot);
 		}
-		return slots.size() == 0 ? null : slots;
+		return slots;
 	}
 	
 	public void setCurrentDrug(Recipe currentDrug) {
@@ -104,7 +104,7 @@ public class Hookah {
 		loc.getWorld().spawnParticle(Particle.SMOKE_LARGE, loc, 25, 2, 1, 2, 0);
 		
 		//If the player is not in a scenario, it applies the default high of this drug
-		if (!Scenario.getActiveScenarios().contains(player.getUniqueId()))
+		if (!Scenario.getActiveScenarios().containsKey(player.getUniqueId()))
 			new DefaultHigh(currentDrug.getDefaultHigh()).send(player);
 		
 		//Determines if a scenario should be played according to the odds specified in the drug's recipe.

@@ -107,35 +107,39 @@ public class Listeners implements Listener{
 				e.setCancelled(true);
 		}
 		
-		//Get the current Hookah from the NBT inside the info paper
-		String stockedLoc[] = // "world;x;y;z"
-				Customizer.getCompound(e.getInventory().getItem(31)).getValue("location").getValue().split(";");
-		Hookah currentHookah = Hookah.getHookah(new Location(Bukkit.getWorld(stockedLoc[0]), 
-				Double.parseDouble(stockedLoc[1]), 
-				Double.parseDouble(stockedLoc[2]), 
-				Double.parseDouble(stockedLoc[3])));
-		
-		//combine ingredients
-		if (e.getCurrentItem().getItemMeta().equals(Hookah.getInterfaceItems().get(0).getItemMeta())) {
-			if (currentHookah.combineIngredients((Player) e.getWhoClicked(), (e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)))
-				((Player) e.getWhoClicked()).updateInventory();
-			else {
-				currentHookah.playWrongRecipe();
-				((Player) e.getWhoClicked()).playSound(((Player) e.getWhoClicked()).getLocation(), 
-						Sound.BLOCK_REDSTONE_TORCH_BURNOUT, SoundCategory.VOICE, 1f, 1f);
-			}
-		}
-		
-		//light drug
-		if (e.getCurrentItem().getItemMeta().equals(Hookah.getInterfaceItems().get(2).getItemMeta())) {
-			if (e.getInventory().getItem(16) == null) return;
-			for (Recipe recipe: Recipe.getRecipes()) {
-				if (e.getInventory().getItem(16).getItemMeta().equals(recipe.getDrugItem().getItemMeta()) &&
-						Customizer.getCompound(e.getInventory().getItem(16)).hasKey("isDrug")) {
-					currentHookah.lightDrug(recipe);
-					return;
+		try {
+			//Get the current Hookah from the NBT inside the info paper
+			String stockedLoc[] = // "world;x;y;z"
+					Customizer.getCompound(e.getInventory().getItem(31)).getValue("location").getValue().split(";"); 
+			Hookah currentHookah = Hookah.getHookah(new Location(Bukkit.getWorld(stockedLoc[0]), 
+					Double.parseDouble(stockedLoc[1]), 
+					Double.parseDouble(stockedLoc[2]), 
+					Double.parseDouble(stockedLoc[3])));
+			
+			//combine ingredients
+			if (e.getCurrentItem().getItemMeta().equals(Hookah.getInterfaceItems().get(0).getItemMeta())) {
+				if (currentHookah.combineIngredients((Player) e.getWhoClicked(), (e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)))
+					((Player) e.getWhoClicked()).updateInventory();
+				else {
+					currentHookah.playWrongRecipe();
+					((Player) e.getWhoClicked()).playSound(((Player) e.getWhoClicked()).getLocation(), 
+							Sound.BLOCK_REDSTONE_TORCH_BURNOUT, SoundCategory.VOICE, 1f, 1f);
 				}
 			}
+			
+			//light drug
+			if (e.getCurrentItem().getItemMeta().equals(Hookah.getInterfaceItems().get(2).getItemMeta())) {
+				if (e.getInventory().getItem(16) == null) return;
+				for (Recipe recipe: Recipe.getRecipes()) {
+					if (e.getInventory().getItem(16).getItemMeta().equals(recipe.getDrugItem().getItemMeta()) &&
+							Customizer.getCompound(e.getInventory().getItem(16)).hasKey("isDrug")) {
+						currentHookah.lightDrug(recipe);
+						return;
+					}
+				}
+			}
+		} catch (Exception ex) {
+			//temporary fix
 		}
 	}
 	

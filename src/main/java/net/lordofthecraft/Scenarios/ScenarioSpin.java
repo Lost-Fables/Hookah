@@ -7,7 +7,6 @@ import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitTask;
 
 import net.lordofthecraft.HookahMain;
 import net.lordofthecraft.PacketHandler;
@@ -20,8 +19,6 @@ public class ScenarioSpin extends Scenario {
 	}
 
 	private float speed = 0;
-	
-	private BukkitTask rotateTask, soundTask, durationTask;
 	
 	public boolean play() {
 		PacketHandler.toggleRedTint(player, true);
@@ -39,26 +36,25 @@ public class ScenarioSpin extends Scenario {
 		}, 60);
 		
 		//Rotates the camera linearly faster every tick
-		rotateTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
 			public void run() {
 				speed += 0.03f;
 				camera.yaw = spinYaw(camera.yaw, speed);
 				PacketHandler.sendEntityLookPacket(player, camera.getId(), camera.yaw, camera.pitch);
 			}
-		}, 0, 1);
+		}, 0, 1));
 		
 		//Plays the elyrta flight sound throughout the scenario
-		soundTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
 			public void run() {
 				player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, 0.5f, 1f);
 			}
-		}, 220, 180);
+		}, 220, 180));
 		
 		//Ends the scenario after a certain amount of time
-		durationTask = Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run () {
-				rotateTask.cancel();
-				soundTask.cancel();
+				cleanTasks();
 				PacketHandler.toggleRedTint(player, false);
 				PacketHandler.moveCamera(player, player.getEntityId());
 				PacketHandler.removeFakeMobs(player, new int[]{camera.getId()});
@@ -66,15 +62,13 @@ public class ScenarioSpin extends Scenario {
 				player.stopSound(Sound.ITEM_ELYTRA_FLYING);
 				activeScenarios.remove(player.getUniqueId());
 			}
-		}, 760);
+		}, 760));
 		
 		return true;
 	}
 	
 	public void remove() {
-		rotateTask.cancel();
-		soundTask.cancel();
-		durationTask.cancel();
+		cleanTasks();
 	}
 	
 	private EntityArmorStand initCamera() {

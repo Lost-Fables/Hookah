@@ -9,21 +9,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
 
 public class DefaultHigh implements Listener{
 	
 	protected enum HighType {
 		HUNGER,
 		SPEED,
-		SLOW
+		SLOW,
+		DEFAULT
 	}
 	
 	class ActiveHigh {
-		int durationTask;
-		int nauseaTask;
+		BukkitTask durationTask, nauseaTask;
 		double amplifier;
 		
-		private ActiveHigh(int durationTask, int nauseaTask, double amplifier) {
+		private ActiveHigh(BukkitTask durationTask, BukkitTask nauseaTask, double amplifier) {
 			this.durationTask = durationTask;
 			this.nauseaTask = nauseaTask;
 			this.amplifier = amplifier;
@@ -52,14 +53,14 @@ public class DefaultHigh implements Listener{
 			int time = (int) (amplifier * 200);
 			if (time > ceiling) time = ceiling;
 			
-			Bukkit.getServer().getScheduler().cancelTask(activeHighs.get(player.getUniqueId()).durationTask);
+			activeHighs.get(player.getUniqueId()).durationTask.cancel();
 			activeHighs.get(player.getUniqueId()).durationTask = startDurationTask(player, time);
 		} else //First hit
 			activeHighs.put(player.getUniqueId(),
 					new ActiveHigh(startDurationTask(player, 200), startNauseaTask(player), 1.5));
 	}
 	
-	private int startDurationTask(Player player, int time) {
+	private BukkitTask startDurationTask(Player player, int time) {
 		switch (type) {
 		case HUNGER:
 			sendHungerEffect(player, time);
@@ -70,11 +71,14 @@ public class DefaultHigh implements Listener{
 		case SLOW:
 			sendSlowEffect(player, time);
 			break;
+		case DEFAULT:
+			sendDefaultEffect(player, time);
+			break;
 		}
 		
-		return Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+		return Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run() {
-				Bukkit.getServer().getScheduler().cancelTask(activeHighs.get(player.getUniqueId()).nauseaTask);
+				activeHighs.get(player.getUniqueId()).nauseaTask.cancel();
 				activeHighs.remove(player.getUniqueId());
 				PacketHandler.toggleRedTint(player, false);
 				player.removePotionEffect(PotionEffectType.CONFUSION);
@@ -82,12 +86,16 @@ public class DefaultHigh implements Listener{
 		}, time);
 	}
 	
-	private int startNauseaTask(Player player) {
-		return Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(HookahMain.plugin, new Runnable() {
+	private BukkitTask startNauseaTask(Player player) {
+		return Bukkit.getServer().getScheduler().runTaskTimer(HookahMain.plugin, new Runnable() {
 			public void run() {
 					player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 300, 4), true);
 			}
 		}, 0, 290);	
+	}
+	
+	private void sendDefaultEffect (Player player, int time) {
+		PacketHandler.toggleRedTint(player, true);
 	}
 	
 	private void sendHungerEffect(Player player, int time) {

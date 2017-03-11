@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
 
 import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
 
@@ -17,6 +16,49 @@ public class ScenarioBrother extends Scenario {
 	
 	public ScenarioBrother(Player player) {
 		super(player);
+	}
+	
+	private Spirit brother;
+	
+	public boolean play() {
+		PacketHandler.toggleRedTint(player, true);
+		
+		brother = new Spirit();
+		brother.spawn(player, Particle.CLOUD, Particle.SLIME, 1, ChatColor.AQUA + "Kindred Spirit");
+		player.playSound(player.getLocation(), Sound.ENTITY_CAT_PURR, SoundCategory.VOICE, 1f, 1f);
+		
+		//Sends a random emote to the player every so often
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable(){
+			public void run() {
+				randomPurrSound();
+				if (random.nextInt(5) == 0) 
+					player.sendMessage(Emotes.values()[random.nextInt(Emotes.values().length)].emote);
+			}
+		}, 200, 200));
+		
+		//Task that ends the scenario
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable(){
+			public void run() {
+				PacketHandler.toggleRedTint(player, false);
+				brother.remove(player);
+				cleanTasks();
+				activeScenarios.remove(player.getUniqueId());
+			}
+		}, 3600));
+		
+		return true;
+	}
+	
+	//Used to force stop the scenario
+	public void remove() {
+		cleanTasks();
+		brother.remove(player);
+	}
+	
+	private void randomPurrSound() {
+		Sound sound = random.nextInt(2) == 0 ? Sound.ENTITY_CAT_PURREOW : Sound.ENTITY_CAT_PURR;
+		player.playSound(new Location(player.getWorld(), player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()),
+				sound, SoundCategory.VOICE, 1f, 1f);
 	}
 	
 	//TODO might want to move these into a .txt or .yml file
@@ -34,50 +76,5 @@ public class ScenarioBrother extends Scenario {
 		Emotes(String emote) {
 			this.emote = emote;
 		}
-	}
-	
-	private BukkitTask emoteTask, durationTask;
-	private Spirit brother;
-	
-	public boolean play() {
-		PacketHandler.toggleRedTint(player, true);
-		
-		brother = new Spirit();
-		brother.spawn(player, Particle.CLOUD, Particle.SLIME, 1, ChatColor.AQUA + "Kindred Spirit");
-		player.playSound(player.getLocation(), Sound.ENTITY_CAT_PURR, SoundCategory.VOICE, 1f, 1f);
-		
-		//Sends a random emote to the player every so often
-		emoteTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable(){
-			public void run() {
-				randomPurrSound();
-				if (random.nextInt(5) == 0) 
-					player.sendMessage(Emotes.values()[random.nextInt(Emotes.values().length)].emote);
-			}
-		}, 200, 200);
-		
-		//Task that ends the scenario
-		durationTask = Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable(){
-			public void run() {
-				PacketHandler.toggleRedTint(player, false);
-				brother.remove(player);
-				emoteTask.cancel();
-				activeScenarios.remove(player.getUniqueId());
-			}
-		}, 3600);
-		
-		return true;
-	}
-	
-	//Used to force stop the scenario
-	public void remove() {
-		durationTask.cancel();
-		emoteTask.cancel();
-		brother.remove(player);
-	}
-	
-	private void randomPurrSound() {
-		Sound sound = random.nextInt(2) == 0 ? Sound.ENTITY_CAT_PURREOW : Sound.ENTITY_CAT_PURR;
-		player.playSound(new Location(player.getWorld(), player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()),
-				sound, SoundCategory.VOICE, 1f, 1f);
 	}
 }

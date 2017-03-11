@@ -27,19 +27,19 @@ import net.md_5.bungee.api.ChatColor;
 public class Hookah {
 	
 	private static Random random = new Random();
-	private static HashMap<Location, Hookah> hookahs = new HashMap<Location, Hookah>(); //Global collection of all Hoo-Kahs
+	private static HashMap<WeakLocation, Hookah> hookahs = new HashMap<>(); //Global collection of all Hoo-Kahs
 	private static List<ItemStack> interfaceItems = generateInterfaceItems();
 	
-	private Location location;
+	private WeakLocation location;
 	private Inventory inventory = generateDefaultInventory();
 	private Recipe currentDrug = null;
 	private int charges = 0;
 	
-	public void setLocation(Location location) {
+	public void setLocation(WeakLocation location) {
 		this.location = location;
 	}
 	
-	public Location getLocation() {
+	public WeakLocation getLocation() {
 		return location;
 	}
 	
@@ -96,7 +96,8 @@ public class Hookah {
 	}
 	
 	public void useCharge(Player player) {
-		Location loc = location.clone();
+		Location loc = location.convertToLocation();
+		if (loc == null) return;
 		loc.add(0.5, 1.5, 0.5);
 			
 		loc.getWorld().spawnParticle(Particle.CLOUD, loc, 100, 1, 1, 1, 0);
@@ -111,10 +112,12 @@ public class Hookah {
 		//and then plays that scenario to the player. Also removes a default high a player may have in case
 		//it could interfere with a scenario
 		if (random.nextDouble() <= currentDrug.getScenarioOdds() && currentDrug.getScenarios().size() > 0) {
-			Bukkit.getServer().getScheduler().cancelTask(DefaultHigh.getActiveHighs().get(player.getUniqueId()).durationTask);
-			Bukkit.getServer().getScheduler().cancelTask(DefaultHigh.getActiveHighs().get(player.getUniqueId()).nauseaTask);
-			DefaultHigh.getActiveHighs().remove(player.getUniqueId());
-			PacketHandler.toggleRedTint(player, false);
+			if (DefaultHigh.getActiveHighs().containsKey(player.getUniqueId())) {
+				DefaultHigh.getActiveHighs().get(player.getUniqueId()).durationTask.cancel();
+				DefaultHigh.getActiveHighs().get(player.getUniqueId()).nauseaTask.cancel();
+				DefaultHigh.getActiveHighs().remove(player.getUniqueId());
+				PacketHandler.toggleRedTint(player, false);
+			}
 			new Scenario(player, currentDrug.getScenarios().get(random.nextInt(currentDrug.getScenarios().size())))
 				.play();
 		}
@@ -209,7 +212,7 @@ public class Hookah {
 				}
 			}
 			
-			player.playSound(location, Sound.BLOCK_CHORUS_FLOWER_DEATH, SoundCategory.VOICE, 2f, 2f);
+			player.playSound(player.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, SoundCategory.VOICE, 1f, 1f);
 			
 			return true;
 		}
@@ -243,7 +246,9 @@ public class Hookah {
 			setCharges(recipe.getChargesPerDrug());
 		}
 		
-		location.getWorld().playSound(location, Sound.BLOCK_BREWING_STAND_BREW, SoundCategory.VOICE, 1f, 1f);
+		Location loc = location.convertToLocation();
+		if (loc != null)
+			loc.getWorld().playSound(loc, Sound.BLOCK_BREWING_STAND_BREW, SoundCategory.VOICE, 1f, 1f);
 		
 		return true;
 	}	
@@ -264,14 +269,10 @@ public class Hookah {
 		}, 20);
 	}	
 	
-	public static void addHookah(Location loc, Hookah hookah) {
-		//Save the location as an NBT inside the infoPaper item
-		TagCompound tc = Customizer.getCompound(hookah.getInventory().getItem(31));
-		// "world;x;y;z"
-		tc.addValue("location", loc.getWorld().getName() + ";" +
-				String.valueOf(loc.getBlockX()) + ";" +
-				String.valueOf(loc.getBlockY()) + ";" +
-				String.valueOf(loc.getBlockZ()));
+	public static void addHookah(WeakLocation loc, Hookah hookah) {
+		//Save the location as an NBT inside the infoPaper item as "world;x;y;z"
+		TagCompound tc = TagCompound.emptyCompound();
+		tc.addValue("location", loc.toString());
 		hookah.getInventory().setItem(31, 
 				Customizer.setCompound(hookah.getInventory().getItem(31), tc));
 		
@@ -279,15 +280,15 @@ public class Hookah {
 		hookahs.put(loc, hookah);
 	}
 	
-	public static void removeHookah(Location loc) {
+	public static void removeHookah(WeakLocation loc) {
 		hookahs.remove(loc);
 	}
 	
-	public static Hookah getHookah(Location loc) {
+	public static Hookah getHookah(WeakLocation loc) {
 		return hookahs.get(loc);
 	}
 	
-	public static Set<Location> getLocations() {
+	public static Set<WeakLocation> getLocations() {
 		return hookahs.keySet();
 	}
 	
@@ -303,8 +304,8 @@ public class Hookah {
 				ChatColor.GRAY + "a various amount of high quality produce."));
 		hookah.setItemMeta(meta);
 		
-		TagCompound tc = Customizer.getCompound(hookah);
-		tc.addValue("isHookah", "true");
+		TagCompound tc = TagCompound.emptyCompound();
+		tc.addValue("nexuscraft", "hookah");
 		return Customizer.setCompound(hookah, tc);
 	}
 	

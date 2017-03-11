@@ -13,15 +13,16 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.scheduler.BukkitTask;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
 public class Scenario {
 	
-	//TODO make this Map<UUID, Scenario>
 	protected static Map<UUID, Scenario> activeScenarios = new HashMap<>();
 	protected static Random random = new Random();
+	protected List<BukkitTask> tasksToCleanup = new ArrayList<>(); //Holds all tasks used in a scenario
 	protected Player player; //Keeps track of the player who's experiencing this scenario
 	private Scenarios type;
 	
@@ -82,6 +83,12 @@ public class Scenario {
 	
 	public void remove() {
 		//Remove the current Scenario
+	}
+	
+	public void cleanTasks() {
+		for (BukkitTask task: tasksToCleanup) {
+			task.cancel();
+		}
 	}
 	
 	public static Map<UUID, Scenario> getActiveScenarios() {

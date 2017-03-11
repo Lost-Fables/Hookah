@@ -40,9 +40,6 @@ public class ScenarioParadise extends Scenario{
 	private List<FloatingHead> floatingHeads = new ArrayList<>();
 	private List<FloatingCow> floatingCows = new ArrayList<>();
 	
-	private BukkitTask summonTask, durationTask;
-	private List<BukkitTask> tasksForCleanUp = new ArrayList<>(); //Holds every extra task incase we need to clean up early
-	
 	public boolean play() {
 		PacketHandler.toggleRedTint(player, true);
 		player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 800, 1), true);
@@ -50,7 +47,7 @@ public class ScenarioParadise extends Scenario{
 		
 		//Spawn the 3 cows that circle the player's head
 		for (int i = 0; i < 3; i++) {
-			tasksForCleanUp.add(Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
+			tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
 				public void run() {
 					FloatingCow cow = new FloatingCow();
 					cow.startFloating();
@@ -60,7 +57,7 @@ public class ScenarioParadise extends Scenario{
 		}
 		
 		//Repeating task that summons a floating head every tick
-		summonTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
 			public void run() {
 				//generates a random position in a 32x12x32 cube around the player
 				Location startPosition = new Location(player.getWorld(), 
@@ -69,16 +66,15 @@ public class ScenarioParadise extends Scenario{
 						player.getLocation().getZ() - 16 + random.nextInt(32));
 				floatingHeads.add(new FloatingHead(startPosition));
 			}
-		}, 0, 1);
+		}, 0, 1));
+		
 		//Task that cleans everything once the scenario is over.
-		durationTask = Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run() {
-				summonTask.cancel();
-				
+				cleanTasks();
 				for (FloatingHead floatingHead: floatingHeads) {
 					floatingHead.remove();
 				}
-				
 				for (FloatingCow floatingCow: floatingCows) {
 					floatingCow.remove();
 				}
@@ -88,24 +84,20 @@ public class ScenarioParadise extends Scenario{
 				player.stopSound(Sound.RECORD_CHIRP);
 				activeScenarios.remove(player.getUniqueId());
 			}
-		}, 800);
+		}, 800));
 		
 		return true;
 	}
 	
 	//Used to force stop this scenario
 	public void remove() {
-		for (BukkitTask task: tasksForCleanUp) {
-			task.cancel();
-		}
-		summonTask.cancel();
+		cleanTasks();
 		for (FloatingHead floatingHead: floatingHeads) {
 			floatingHead.remove();
 		}
 		for (FloatingCow floatingCow: floatingCows) {
 			floatingCow.remove();
 		}
-		durationTask.cancel();
 	}
 	
 	private ItemStack getRandomDecoration() {

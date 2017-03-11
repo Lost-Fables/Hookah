@@ -30,9 +30,8 @@ public class ScenarioHeads extends Scenario {
 	
 	final private String popUpSkinURL = "http://textures.minecraft.net/texture/f4edb1f1ef2ba92ccceb3ddd927c1d4d3ff4635f61cca697efa914ca2e688";
 	private int interval = 40; //Time in ticks until the next time blindness is toggled
-	
 	private List<Spirit> heads = new ArrayList<Spirit>();
-	private BukkitTask flashTask, rapidFlashingTask, durationTask;
+	private BukkitTask flashTask, rapidFlashingTask;
 	
 	public boolean play() {
 		PacketHandler.toggleRedTint(player, true);
@@ -44,7 +43,7 @@ public class ScenarioHeads extends Scenario {
 			head.spawn(player, null, null, 1, null);
 			heads.add(head);
 			
-			//Delay the spawn so they appear exactly 30 ticks apart from eachother
+			//Delay the spawn so they appear exactly 30 ticks apart from each other
 			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
 				public void run() {
 					PacketHandler.sendEquipment(player, head.getStand().getId(), ItemSlot.HEAD, 
@@ -56,7 +55,7 @@ public class ScenarioHeads extends Scenario {
 		flashBlindness(); //Starts the blindness flashing
 		
 		//Mega task that manages all the events of this scenario
-		durationTask = Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run () {
 				for (Spirit head: heads) {
 					head.remove(player);
@@ -68,7 +67,6 @@ public class ScenarioHeads extends Scenario {
 				//Place the popUp 1 block away from the player's face and have it facing the player.
 				Location popUpLocation = player.getLocation().add(player.getLocation().getDirection().setY(0).normalize().multiply(1));
 				popUpLocation.setDirection(player.getLocation().subtract(popUpLocation).toVector());
-				
 				EntityArmorStand popUp = new EntityArmorStand(((CraftWorld) player.getWorld()).getHandle());
 				popUp.setLocation(popUpLocation.getX(), popUpLocation.getY(), popUpLocation.getZ(), popUpLocation.getYaw(), popUpLocation.getPitch());
 				popUp.setInvisible(true);
@@ -96,7 +94,7 @@ public class ScenarioHeads extends Scenario {
 					}
 				}, 30);
 			}
-		}, 800);
+		}, 800));
 		
 		return true;
 	}
@@ -106,9 +104,9 @@ public class ScenarioHeads extends Scenario {
 		for (Spirit head: heads) {
 			head.remove(player);
 		}
-		flashTask.cancel();
-		rapidFlashingTask.cancel();
-		durationTask.cancel();
+		if (flashTask != null) 
+			flashTask.cancel();
+		cleanTasks();
 	}
 	
 	//TODO I really hate the way I made this
@@ -122,13 +120,15 @@ public class ScenarioHeads extends Scenario {
 					flashBlindness();
 				}
 			}, interval);
-		else
+		else {
 			rapidFlashingTask = Bukkit.getServer().getScheduler().runTaskTimer(HookahMain.plugin, new Runnable() {
 				public void run () {
 					player.playSound(player.getLocation(), Sound.ENTITY_WITHER_AMBIENT, SoundCategory.VOICE, 1f, 1f);
 					toggleBlindness();
 				}
-			}, 3, 3);	
+			}, 3, 3);
+			tasksToCleanup.add(rapidFlashingTask);
+		}
 	}
 	
 	private void toggleBlindness() {

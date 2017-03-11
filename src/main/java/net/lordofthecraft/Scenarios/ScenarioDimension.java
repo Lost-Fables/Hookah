@@ -9,19 +9,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
-import org.bukkit.craftbukkit.v1_11_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
-import com.comphenix.packetwrapper.WrapperPlayServerEntityTeleport;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-import com.google.common.primitives.Ints;
 
 import net.lordofthecraft.HookahMain;
 import net.lordofthecraft.PacketHandler;
@@ -34,7 +29,7 @@ public class ScenarioDimension extends Scenario{
 	}
 	
 	private Chunk chunk; //The chunk affected by the scenario
-	private BukkitTask ambientTask, blindnessTask, durationTask;
+	private BukkitTask ambientTask; //Repeating task that plays portal sounds
 	
 	public boolean play() {
 		chunk = player.getLocation().getChunk();
@@ -49,14 +44,18 @@ public class ScenarioDimension extends Scenario{
 						player.playSound(player.getLocation(), Sound.BLOCK_PORTAL_AMBIENT, SoundCategory.VOICE, 1f, 1f);
 			}
 		}, 0, 20);
+		tasksToCleanup.add(ambientTask);
 		
-		//Task used to time the effects sent to the player to create the scenario
-		blindnessTask = Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+		//Task used to time the effects sent to the player
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run() {
+				//Stop the portal sounds
 				ambientTask.cancel();
 				player.stopSound(Sound.BLOCK_PORTAL_AMBIENT);
+				
 				player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 1));
 				
+				//Shows the 'dimension' after a few seconds of silence
 				Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
 					public void run () {
 						player.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, SoundCategory.VOICE, 1f, 1f);
@@ -64,9 +63,10 @@ public class ScenarioDimension extends Scenario{
 					}
 				}, 60);
 			}
-		}, 200);
+		}, 200));
+		
 		//Task that ends the scenario
-		durationTask = Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run () {
 				PacketHandler.moveCamera(player, player.getEntityId());
 				PacketHandler.removeFakeMobs(player, new int[]{camera.getId()});
@@ -74,16 +74,14 @@ public class ScenarioDimension extends Scenario{
 				player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
 				activeScenarios.remove(player.getUniqueId());
 			}
-		}, 400);
+		}, 400));
 		
 		return true;
 	}
 	
 	//Used to force stop the scenario
 	public void remove() {
-		ambientTask.cancel();
-		blindnessTask.cancel();
-		durationTask.cancel();
+		cleanTasks();
 	}
 	
 	private List<MultiBlockChangeInfo> spawnDimension() {

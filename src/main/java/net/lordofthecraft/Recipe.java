@@ -3,6 +3,7 @@ package net.lordofthecraft;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -54,7 +55,7 @@ public class Recipe {
 	
 	//Adds a NBT to the drug item for future identification purposes
 	private void setDrugItem(ItemStack drugItem) {
-		TagCompound tc = Customizer.getCompound(drugItem);
+		TagCompound tc = TagCompound.emptyCompound();;
 		tc.addValue("isDrug", "true");
 		this.drugItem = Customizer.setCompound(drugItem, tc);
 	}
@@ -68,7 +69,12 @@ public class Recipe {
 	}
 	
 	public void setName(String name) {
-		ItemMeta meta = drugItem.getItemMeta();
+		ItemMeta meta;
+		if (drugItem.hasItemMeta())
+			meta = drugItem.getItemMeta();
+		else
+			meta = Bukkit.getItemFactory().getItemMeta(drugItem.getType());
+
 		meta.setDisplayName(name);
 		drugItem.setItemMeta(meta);
 	}
@@ -81,7 +87,12 @@ public class Recipe {
 	}
 	
 	public void setLore(List<String> lore) {
-		ItemMeta meta = drugItem.getItemMeta();
+		ItemMeta meta;
+		if (drugItem.hasItemMeta())
+			meta = drugItem.getItemMeta();
+		else
+			meta = Bukkit.getItemFactory().getItemMeta(drugItem.getType());
+		
 		meta.setLore(lore);
 		drugItem.setItemMeta(meta);
 	}

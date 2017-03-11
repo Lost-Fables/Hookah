@@ -183,6 +183,7 @@ public class Hookah {
 				if (lowestValue > amount) lowestValue = amount;
 			}
 			resultDrug.setAmount(lowestValue);
+			if (!maxAmount) lowestValue = 1;
 			
 			//Create/Add recipe result
 			ItemStack resultSlotItem = inventory.getItem(16);
@@ -203,7 +204,7 @@ public class Hookah {
 					ItemStack ingredientInInv = inventory.getItem(slot); //variable for readability
 
 					if (isSameIngredient(ingredientInInv, ingredient)) {
-						if (ingredientInInv.getAmount() > 1)
+						if (ingredientInInv.getAmount() > lowestValue)
 							ingredientInInv.setAmount(ingredientInInv.getAmount() - (maxAmount ? lowestValue : 1)); //deduct 1 if not shift-clicking
 						else
 							inventory.clear(slot);	

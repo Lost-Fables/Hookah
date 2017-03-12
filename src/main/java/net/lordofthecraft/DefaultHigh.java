@@ -116,6 +116,7 @@ public class DefaultHigh implements Listener{
 	
 	private void sendSpeedEffect(Player player, int time) {
 		player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, time, 0), true);
+		player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, time, 1), true);
 		PacketHandler.toggleRedTint(player, true);
 	}
 	

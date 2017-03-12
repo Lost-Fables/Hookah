@@ -109,7 +109,7 @@ public class HookahMain extends JavaPlugin{
 			
 			//location as "world;x;y;z"
 			String locationKey = loc.toString();
-			hookahsFile.set("hookahs", locationKey);
+			hookahsFile.set("hookahs." + locationKey, "");
 			
 			//Slots that contain items to be serialized
 			List<Integer> affectedSlots = new ArrayList<>();

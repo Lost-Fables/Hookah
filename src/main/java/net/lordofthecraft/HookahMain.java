@@ -8,10 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -172,7 +170,7 @@ public class HookahMain extends JavaPlugin{
 				for (Recipe recipe: Recipe.getRecipes()) {
 					if (recipe.getName().equalsIgnoreCase(data[0])) {
 						hookah.setCurrentDrug(recipe);
-						hookah.setCharges(Integer.parseInt(data[5]));
+						hookah.setCharges(Integer.parseInt(data[1]));
 						break;
 					}
 				}

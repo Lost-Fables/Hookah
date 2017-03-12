@@ -112,12 +112,7 @@ public class Hookah {
 		//and then plays that scenario to the player. Also removes a default high a player may have in case
 		//it could interfere with a scenario
 		if (random.nextDouble() <= currentDrug.getScenarioOdds() && currentDrug.getScenarios().size() > 0) {
-			if (DefaultHigh.getActiveHighs().containsKey(player.getUniqueId())) {
-				DefaultHigh.getActiveHighs().get(player.getUniqueId()).durationTask.cancel();
-				DefaultHigh.getActiveHighs().get(player.getUniqueId()).nauseaTask.cancel();
-				DefaultHigh.getActiveHighs().remove(player.getUniqueId());
-				PacketHandler.toggleRedTint(player, false);
-			}
+			if (DefaultHigh.getActiveHighs().containsKey(player.getUniqueId())) DefaultHigh.remove(player);
 			new Scenario(player, currentDrug.getScenarios().get(random.nextInt(currentDrug.getScenarios().size())))
 				.play();
 		}

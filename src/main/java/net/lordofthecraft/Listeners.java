@@ -152,19 +152,21 @@ public class Listeners implements Listener{
 	public void onMilkConsume(PlayerItemConsumeEvent e) {
 		if (e.getItem().getType() != Material.MILK_BUCKET) return;
 		if (DefaultHigh.getActiveHighs().containsKey(e.getPlayer().getUniqueId())) {
-			DefaultHigh.getActiveHighs().get(e.getPlayer().getUniqueId()).durationTask.cancel();
-			DefaultHigh.getActiveHighs().get(e.getPlayer().getUniqueId()).nauseaTask.cancel();
-			DefaultHigh.getActiveHighs().remove(e.getPlayer().getUniqueId());
-			PacketHandler.toggleRedTint(e.getPlayer(), false);
+			DefaultHigh.remove(e.getPlayer());		
 			e.getPlayer().sendMessage(ChatColor.AQUA + "Your vision clears and you suddenly feel a lot better.");
 		}
 	}
 	
-	@EventHandler //Cancel scenario when player logs out
+	@EventHandler //Cancel scenario and high tasks when player logs out
 	public void onPlayerQuit(PlayerQuitEvent e) {
+		//scenario
 		if (Scenario.getActiveScenarios().containsKey(e.getPlayer().getUniqueId())) {
 			Scenario.getActiveScenarios().get(e.getPlayer().getUniqueId()).remove();
 			Scenario.getActiveScenarios().remove(e.getPlayer().getUniqueId());
 		}
+		
+		//high
+		if (DefaultHigh.getActiveHighs().containsKey(e.getPlayer().getUniqueId()))
+			DefaultHigh.remove(e.getPlayer());
 	}
 }

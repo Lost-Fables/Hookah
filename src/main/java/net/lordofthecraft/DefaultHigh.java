@@ -29,6 +29,11 @@ public class DefaultHigh implements Listener{
 			this.nauseaTask = nauseaTask;
 			this.amplifier = amplifier;
 		}
+		
+		private void remove() {
+			durationTask.cancel();
+			nauseaTask.cancel();
+		}
 	}
 	
 	private static final int ceiling = 4200; //High duration cannot go past this value of time (ticks)
@@ -58,6 +63,12 @@ public class DefaultHigh implements Listener{
 		} else //First hit
 			activeHighs.put(player.getUniqueId(),
 					new ActiveHigh(startDurationTask(player, 200), startNauseaTask(player), 1.5));
+	}
+	
+	public static void remove(Player player) {
+		activeHighs.get(player.getUniqueId()).remove();
+		activeHighs.remove(player.getUniqueId());
+		PacketHandler.toggleRedTint(player, false);
 	}
 	
 	private BukkitTask startDurationTask(Player player, int time) {

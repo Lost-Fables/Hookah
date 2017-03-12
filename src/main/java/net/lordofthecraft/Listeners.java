@@ -57,7 +57,7 @@ public class Listeners implements Listener{
 		if (e.getItemInHand().getType() != Material.BREWING_STAND_ITEM) return;
 		if (!(Customizer.hasCompound((e.getItemInHand())))) return;
 		if (!(Customizer.getCompound(e.getItemInHand()).hasKey("nexuscraft"))) return; //NBT to make sure its a hookah
-		if (!(Customizer.getCompound(e.getItemInHand()).getValue("nexuscraft").getValue().equals("hookah"))) return;
+		if (!(Customizer.getCompound(e.getItemInHand()).getValue("nexuscraft").getValue().equalsIgnoreCase("hookah"))) return;
 		
 		Hookah.addHookah(new WeakLocation(e.getBlock().getLocation()), new Hookah());
 	}

@@ -12,18 +12,22 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
+import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import io.github.archemedes.customitem.Customizer;
@@ -32,8 +36,30 @@ import net.lordofthecraft.Scenarios.Scenario;
 public class Listeners implements Listener{
 	
 	private List<UUID> cooldowns = new ArrayList<>();
-	
-	@EventHandler
+
+	@EventHandler(ignoreCancelled = false, priority = EventPriority.HIGH)
+	public void onOpenInventory(InventoryOpenEvent e) {
+		InventoryHolder ih = e.getInventory().getHolder();
+		if (ih instanceof BrewingStand) {
+			BrewingStand st = (BrewingStand) ih;
+			WeakLocation loc = new WeakLocation(st.getBlock().getLocation());
+			if (Hookah.getLocations().contains(loc)) {
+				e.setCancelled(true);
+				Hookah currentHookah = Hookah.getHookah(loc);
+				Player p = (Player) e.getPlayer();
+				if (!p.isSneaking()) //Open hookah inventory
+					p.openInventory(currentHookah.getInventory());
+				else { //Take a hit
+					if (currentHookah.getCharges() != 0 && !cooldowns.contains(e.getPlayer().getUniqueId())) {
+						currentHookah.useCharge(p);
+						startCooldown(p);
+					}
+				}
+			}
+		}
+	}
+
+	/*@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent e) {
 		if (!(e.getAction() == Action.RIGHT_CLICK_BLOCK)) return;
 		if (!(e.getClickedBlock().getType() == Material.BREWING_STAND)) return;
@@ -50,7 +76,7 @@ public class Listeners implements Listener{
 				startCooldown(e.getPlayer());
 			}
 		}
-	}
+	}*/
 	
 	@EventHandler //Keeps track of hookah locations
 	public void onBlockPlace(BlockPlaceEvent e) {

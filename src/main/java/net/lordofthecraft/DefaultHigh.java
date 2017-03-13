@@ -17,6 +17,8 @@ public class DefaultHigh implements Listener{
 		HUNGER,
 		SPEED,
 		SLOW,
+		HEAL,
+		NIGHT_VISION,
 		DEFAULT
 	}
 	
@@ -82,6 +84,12 @@ public class DefaultHigh implements Listener{
 		case SLOW:
 			sendSlowEffect(player, time);
 			break;
+		case HEAL:
+			sendHealEffect(player, time);
+			break;
+		case NIGHT_VISION:
+			sendNightVisionEffect(player, time);
+			break;
 		case DEFAULT:
 			sendDefaultEffect(player, time);
 			break;
@@ -123,6 +131,18 @@ public class DefaultHigh implements Listener{
 	private void sendSlowEffect(Player player, int time) {
 		player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, time, 1), true);
 		player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, time, 1), true);
+		PacketHandler.toggleRedTint(player, true);
+	}
+	
+	private void sendHealEffect(Player player, int time) {
+		player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 1), true);
+		player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, time, 1), true);
+		player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, time, 1), true);
+		PacketHandler.toggleRedTint(player, true);
+	}
+	
+	private void sendNightVisionEffect(Player player, int time) {
+		player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, time, 1), true);
 		PacketHandler.toggleRedTint(player, true);
 	}
 }

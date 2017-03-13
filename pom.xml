@@ -28,6 +28,13 @@
             <id>tofuus-repo</id>
             <url>http://repo.tofuus.com/repository/tofuus-repo/</url>
         </repository>
+        <repository>
+            <id>lotc-release</id>
+            <url>https://repo.lordofthecraft.net/artifactory/lotc-releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -56,6 +63,12 @@
             <groupId>com.comphenix.packetwrapper</groupId>
             <artifactId>PacketWrapper</artifactId>
             <version>1.11-R0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.lordofthecraft.arche</groupId>
+            <artifactId>ArcheCore</artifactId>
+            <version>1.112.1</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

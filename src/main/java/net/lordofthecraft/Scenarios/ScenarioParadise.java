@@ -71,17 +71,17 @@ public class ScenarioParadise extends Scenario{
 		//Task that cleans everything once the scenario is over.
 		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run() {
-				cleanTasks();
 				for (FloatingHead floatingHead: floatingHeads) {
 					floatingHead.remove();
 				}
 				for (FloatingCow floatingCow: floatingCows) {
 					floatingCow.remove();
 				}
-				
+
 				PacketHandler.toggleRedTint(player, false);		
 				player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
 				player.stopSound(Sound.RECORD_CHIRP);
+				cleanTasks();
 				activeScenarios.remove(player.getUniqueId());
 			}
 		}, 800));

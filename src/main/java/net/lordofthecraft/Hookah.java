@@ -296,7 +296,7 @@ public class Hookah {
 		ItemStack hookah = new ItemStack(Material.BREWING_STAND_ITEM, 1);
 		ItemMeta meta = hookah.getItemMeta();
 		meta.setDisplayName("Hoo-Kah");
-		meta.setLore(Arrays.asList(ChatColor.GRAY + "A simple deviced used to produce and consume", 
+		meta.setLore(Arrays.asList(ChatColor.GRAY + "A simple device used to produce and consume", 
 				ChatColor.GRAY + "a various amount of high quality produce."));
 		hookah.setItemMeta(meta);
 		

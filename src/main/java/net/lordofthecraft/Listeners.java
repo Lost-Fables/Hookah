@@ -88,6 +88,14 @@ public class Listeners implements Listener{
 		Hookah.addHookah(new WeakLocation(e.getBlock().getLocation()), new Hookah());
 	}
 	
+	@EventHandler //Prevents from placing drug items
+	public void onDrugPlace(BlockPlaceEvent e) {
+		if (!(Customizer.hasCompound((e.getItemInHand())))) return;
+		if (!(Customizer.getCompound(e.getItemInHand()).hasKey("isDrug"))) return; //NBT to make sure its a drug
+		if (!(Customizer.getCompound(e.getItemInHand()).getValue("isDrug").getValue().equalsIgnoreCase("true"))) return;
+		e.setCancelled(true);
+	}
+	
 	@EventHandler //Keeps track of hookah locations
 	public void onBlockBreak(BlockBreakEvent e) {
 		if (!Hookah.getLocations().contains(new WeakLocation(e.getBlock().getLocation()))) return;

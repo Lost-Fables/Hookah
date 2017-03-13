@@ -34,7 +34,8 @@ public class Scenario {
 		SPIN,
 		HEADS,
 		PARADISE,
-		EYES;
+		BABY,
+		SNOWMAN;
 		
 		public static int length = 9;
 	}
@@ -71,8 +72,11 @@ public class Scenario {
 		case PARADISE:
 			scenario = new ScenarioParadise(player);
 			break;
-		case EYES:
-			scenario = new ScenarioEyes(player);
+		case BABY:
+			scenario = new ScenarioBabyBrain(player);
+			break;
+		case SNOWMAN:
+			scenario = new ScenarioSnowman(player);
 			break;
 		}
 		activeScenarios.put(player.getUniqueId(), scenario);

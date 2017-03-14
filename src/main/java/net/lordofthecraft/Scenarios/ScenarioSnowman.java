@@ -23,9 +23,9 @@ public class ScenarioSnowman extends Scenario{
 	}
 	
 	private final String[] names = new String[] {
-			"Jerry", "Jeffrey", "Robert", "Carter West", "Jamal", "Tai Lopez",
-			"Tai Hernandes", "Bob", "John", "Dr. Phil", "Frosty The Snowman",
-			"Magic Plugin", "Iblees", "Ariel", "Frederick"
+			"Jerry", "Jeffrey", "Robert", "Carter", "Jamal",
+			"Tai", "Bob", "John", "Phil", "Frosty The Snowman",
+			"Alfred", "Iblees", "Ariel", "Frederick"
 	};
 	
 	private Map<Spirit, EntitySnowman> snowmen = new HashMap<>();

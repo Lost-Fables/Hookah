@@ -55,10 +55,7 @@ public class ScenarioBrother extends Scenario {
 		//Task that ends the scenario
 		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable(){
 			public void run() {
-				PacketHandler.toggleRedTint(player, false);
-				brother.remove(player);
-				cleanTasks();
-				activeScenarios.remove(player.getUniqueId());
+				remove();
 			}
 		}, 3600));
 		
@@ -67,8 +64,11 @@ public class ScenarioBrother extends Scenario {
 	
 	//Used to force stop the scenario
 	public void remove() {
-		cleanTasks();
+		PacketHandler.toggleRedTint(player, false);
 		brother.remove(player);
+		cleanTasks();
+		if (activeScenarios.containsKey(player.getUniqueId()))
+			activeScenarios.remove(player.getUniqueId());
 	}
 	
 	private void randomPurrSound() {

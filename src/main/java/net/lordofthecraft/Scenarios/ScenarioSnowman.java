@@ -67,13 +67,7 @@ public class ScenarioSnowman extends Scenario{
 		
 		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run() {
-				for (Spirit path: snowmen.keySet()) {
-					PacketHandler.removeFakeMobs(player, new int[]{snowmen.get(path).getId()});
-					path.remove(player);
-				}
-				PacketHandler.toggleRedTint(player, false);
-				cleanTasks();
-				activeScenarios.remove(player.getUniqueId());
+				remove();
 			}
 		}, 800));
 		
@@ -85,6 +79,9 @@ public class ScenarioSnowman extends Scenario{
 			PacketHandler.removeFakeMobs(player, new int[]{snowmen.get(path).getId()});
 			path.remove(player);
 		}
+		PacketHandler.toggleRedTint(player, false);
 		cleanTasks();
+		if (activeScenarios.containsKey(player.getUniqueId()))
+			activeScenarios.remove(player.getUniqueId());
 	}
 }

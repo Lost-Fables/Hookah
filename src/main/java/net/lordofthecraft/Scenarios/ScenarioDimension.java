@@ -29,13 +29,15 @@ public class ScenarioDimension extends Scenario{
 	}
 	
 	private Chunk chunk; //The chunk affected by the scenario
+	private List<MultiBlockChangeInfo> chunkData; //Information about blocks in a chunk
+	private EntityArmorStand camera;
 	private BukkitTask ambientTask; //Repeating task that plays portal sounds
 	
 	public boolean play() {
 		chunk = player.getLocation().getChunk();
 		
-		List<MultiBlockChangeInfo> chunkData = spawnDimension();;
-		EntityArmorStand camera = initCamera();
+		chunkData = spawnDimension();;
+		camera = initCamera();
 		
 		//Repeating task that plays portal sounds around the player
 		ambientTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable () {
@@ -68,11 +70,7 @@ public class ScenarioDimension extends Scenario{
 		//Task that ends the scenario
 		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run () {
-				PacketHandler.moveCamera(player, player.getEntityId());
-				PacketHandler.removeFakeMobs(player, new int[]{camera.getId()});
-				removeDimension(chunkData);
-				player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
-				activeScenarios.remove(player.getUniqueId());
+				remove();
 			}
 		}, 400));
 		
@@ -81,7 +79,13 @@ public class ScenarioDimension extends Scenario{
 	
 	//Used to force stop the scenario
 	public void remove() {
+		PacketHandler.moveCamera(player, player.getEntityId());
+		PacketHandler.removeFakeMobs(player, new int[]{camera.getId()});
+		removeDimension(chunkData);
+		player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
 		cleanTasks();
+		if (activeScenarios.containsKey(player.getUniqueId()))
+			activeScenarios.remove(player.getUniqueId());
 	}
 	
 	private List<MultiBlockChangeInfo> spawnDimension() {

@@ -87,10 +87,8 @@ public class ScenarioHeads extends Scenario {
 				//Cleans and clears everything. Ends the scenario.
 				Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 					public void run () {
-						player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 1));
 						PacketHandler.removeFakeMobs(player, new int[]{popUp.getId()});
-						PacketHandler.toggleRedTint(player, false);
-						activeScenarios.remove(player.getUniqueId());
+						remove();
 					}
 				}, 30);
 			}
@@ -101,12 +99,14 @@ public class ScenarioHeads extends Scenario {
 	
 	//Used to force stop the scenario
 	public void remove() {
-		for (Spirit head: heads) {
-			head.remove(player);
-		}
+		heads.forEach((head) -> head.remove(player));
 		if (flashTask != null) 
 			flashTask.cancel();
+		player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 1));
+		PacketHandler.toggleRedTint(player, false);
 		cleanTasks();
+		if (activeScenarios.containsKey(player.getUniqueId())) 
+			activeScenarios.remove(player.getUniqueId());
 	}
 	
 	//TODO I really hate the way I made this

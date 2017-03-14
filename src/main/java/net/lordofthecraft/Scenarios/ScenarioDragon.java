@@ -75,15 +75,7 @@ public class ScenarioDragon extends Scenario{
 		//Task that ends the scenario
 		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run() {
-				PacketHandler.removeFakeMobs(player, new int[]{camera.getId(), dragon.getId()});
-				PacketHandler.moveCamera(player, player.getEntityId());
-				PacketHandler.toggleRedTint(player, false);
-				cleanTasks();
-				player.stopSound(Sound.ITEM_ELYTRA_FLYING);
-				player.stopSound(Sound.ENTITY_ENDERDRAGON_GROWL);
-				player.stopSound(Sound.ENTITY_ENDERDRAGON_FLAP);
-				player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
-				activeScenarios.remove(player.getUniqueId());
+				remove();
 			}
 		}, 600));
 		
@@ -92,7 +84,16 @@ public class ScenarioDragon extends Scenario{
 	
 	//Used to force stop the scenario
 	public void remove() {
+		PacketHandler.removeFakeMobs(player, new int[]{camera.getId(), dragon.getId()});
+		PacketHandler.moveCamera(player, player.getEntityId());
+		PacketHandler.toggleRedTint(player, false);
+		player.stopSound(Sound.ITEM_ELYTRA_FLYING);
+		player.stopSound(Sound.ENTITY_ENDERDRAGON_GROWL);
+		player.stopSound(Sound.ENTITY_ENDERDRAGON_FLAP);
+		player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
 		cleanTasks();
+		if (activeScenarios.containsKey(player.getUniqueId()))
+			activeScenarios.remove(player.getUniqueId());
 	}
 	
 	private double calculateHighestY() {

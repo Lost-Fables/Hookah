@@ -46,9 +46,7 @@ public class ScenarioBabyBrain extends Scenario{
 		
 		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run() {
-				PacketHandler.toggleRedTint(player, false);
-				cleanTasks();
-				activeScenarios.remove(player.getUniqueId());
+				remove();
 			}
 		}, 1800));
 		
@@ -56,7 +54,10 @@ public class ScenarioBabyBrain extends Scenario{
 	}
 	
 	public void remove() {
+		PacketHandler.toggleRedTint(player, false);
 		cleanTasks();
+		if (activeScenarios.containsKey(player.getUniqueId()))
+			activeScenarios.remove(player.getUniqueId());
 	}
 	
 	private void randomEvent() {

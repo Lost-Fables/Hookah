@@ -19,6 +19,7 @@ public class ScenarioSpin extends Scenario {
 	}
 
 	private float speed = 0;
+	private EntityArmorStand camera;
 	
 	public boolean play() {
 		PacketHandler.toggleRedTint(player, true);
@@ -26,7 +27,7 @@ public class ScenarioSpin extends Scenario {
 		player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 2));
 		player.playSound(player.getLocation(), Sound.RECORD_STAL, 1f, 1f);
 		
-		EntityArmorStand camera = initCamera();
+		camera = initCamera();
 		
 		//Delay moving the camera for a few seconds
 		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
@@ -54,13 +55,7 @@ public class ScenarioSpin extends Scenario {
 		//Ends the scenario after a certain amount of time
 		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run () {
-				cleanTasks();
-				PacketHandler.toggleRedTint(player, false);
-				PacketHandler.moveCamera(player, player.getEntityId());
-				PacketHandler.removeFakeMobs(player, new int[]{camera.getId()});
-				player.stopSound(Sound.RECORD_STAL);
-				player.stopSound(Sound.ITEM_ELYTRA_FLYING);
-				activeScenarios.remove(player.getUniqueId());
+				remove();
 			}
 		}, 760));
 		
@@ -68,7 +63,14 @@ public class ScenarioSpin extends Scenario {
 	}
 	
 	public void remove() {
+		PacketHandler.toggleRedTint(player, false);
+		PacketHandler.moveCamera(player, player.getEntityId());
+		PacketHandler.removeFakeMobs(player, new int[]{camera.getId()});
+		player.stopSound(Sound.RECORD_STAL);
+		player.stopSound(Sound.ITEM_ELYTRA_FLYING);
 		cleanTasks();
+		if (activeScenarios.containsKey(player.getUniqueId()))
+			activeScenarios.remove(player.getUniqueId());
 	}
 	
 	private EntityArmorStand initCamera() {

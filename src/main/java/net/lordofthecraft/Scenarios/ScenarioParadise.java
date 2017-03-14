@@ -1,7 +1,9 @@
 package net.lordofthecraft.Scenarios;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,6 +17,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 
+import io.github.archemedes.customitem.Customizer;
 import net.lordofthecraft.HookahMain;
 import net.lordofthecraft.PacketHandler;
 import net.md_5.bungee.api.ChatColor;
@@ -39,6 +42,7 @@ public class ScenarioParadise extends Scenario{
 	
 	private List<FloatingHead> floatingHeads = new ArrayList<>();
 	private List<FloatingCow> floatingCows = new ArrayList<>();
+	private BukkitTask floatTask;
 	
 	public boolean play() {
 		PacketHandler.toggleRedTint(player, true);
@@ -49,9 +53,7 @@ public class ScenarioParadise extends Scenario{
 		for (int i = 0; i < 3; i++) {
 			tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
 				public void run() {
-					FloatingCow cow = new FloatingCow();
-					cow.startFloating();
-					floatingCows.add(cow);
+					floatingCows.add(new FloatingCow());
 				}
 			}, 16 * i));
 		}
@@ -66,23 +68,14 @@ public class ScenarioParadise extends Scenario{
 						player.getLocation().getZ() - 16 + random.nextInt(32));
 				floatingHeads.add(new FloatingHead(startPosition));
 			}
-		}, 0, 1));
+		}, 0, 2));
+		
+		startFloating();
 		
 		//Task that cleans everything once the scenario is over.
 		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
 			public void run() {
-				for (FloatingHead floatingHead: floatingHeads) {
-					floatingHead.remove();
-				}
-				for (FloatingCow floatingCow: floatingCows) {
-					floatingCow.remove();
-				}
-
-				PacketHandler.toggleRedTint(player, false);		
-				player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
-				player.stopSound(Sound.RECORD_CHIRP);
-				cleanTasks();
-				activeScenarios.remove(player.getUniqueId());
+				remove();
 			}
 		}, 800));
 		
@@ -91,12 +84,42 @@ public class ScenarioParadise extends Scenario{
 	
 	//Used to force stop this scenario
 	public void remove() {
+		stopFloating();	
+		PacketHandler.toggleRedTint(player, false);
+		player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
+		player.stopSound(Sound.RECORD_CHIRP);
 		cleanTasks();
-		for (FloatingHead floatingHead: floatingHeads) {
-			floatingHead.remove();
+		if (activeScenarios.containsKey(player.getUniqueId()))
+			activeScenarios.remove(player.getUniqueId());
+	}
+	
+	private void startFloating() {
+		floatTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+			public void run() {
+				FloatingHead[] headsArray = floatingHeads.toArray(new FloatingHead[floatingHeads.size()]);
+				for (int i = 0; i < headsArray.length; i++) {
+					headsArray[i].move();
+				}
+				
+				FloatingCow[] cowsArray = floatingCows.toArray(new FloatingCow[floatingCows.size()]);
+				for (int i = 0; i < cowsArray.length; i++) {
+					cowsArray[i].move();
+				}
+			}
+		}, 0, 1);
+	}
+	
+	private void stopFloating() {
+		if (floatTask != null) {
+			floatTask.cancel();
 		}
-		for (FloatingCow floatingCow: floatingCows) {
-			floatingCow.remove();
+		FloatingHead[] headsArray = floatingHeads.toArray(new FloatingHead[floatingHeads.size()]);
+		for (int i = 0; i < headsArray.length; i++) {
+			headsArray[i].remove();
+		}	
+		FloatingCow[] cowsArray = floatingCows.toArray(new FloatingCow[floatingCows.size()]);
+		for (int i = 0; i < cowsArray.length; i++) {
+			cowsArray[i].remove();
 		}
 	}
 	
@@ -110,7 +133,6 @@ public class ScenarioParadise extends Scenario{
 		private double centerY; //the center point the head gravitates to
 		private double x; //used in bobbing equation
 		private double intensity; //how high/low the head bobs
-		private BukkitTask floatTask;
 		
 		public FloatingHead(Location loc) {
 			head = new EntityArmorStand(((CraftWorld) loc.getWorld()).getHandle());
@@ -120,7 +142,6 @@ public class ScenarioParadise extends Scenario{
 			
 			centerY = head.locY;
 			intensity = (Math.random() * 4) + 1;
-			startFloating();
 			
 			//Attach the head to the armorstand 1 tick later to make sure it's had time to spawn
 			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
@@ -130,22 +151,17 @@ public class ScenarioParadise extends Scenario{
 			}, 1);
 		}
 		
-		private void startFloating() {
-			//Repeating task that makes the head bounce up and down
-			floatTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
-				public void run() {
-					x += Math.PI/12;
-					head.locY = intensity * Math.cos(x) + centerY;
-					head.yaw = spinYaw(head.yaw, 3f);
+		//Moves the head to the next position to simulate bouncing
+		private void move() {
+			x += Math.PI/12;
+			head.locY = intensity * Math.cos(x) + centerY;
+			head.yaw = spinYaw(head.yaw, 3f);
 					
-					PacketHandler.teleportFakeEntity(player, head.getId(), 
-							new Location(player.getWorld(), head.locX, head.locY, head.locZ, head.yaw, 0));
-				}
-			}, 0, 1);
+			PacketHandler.teleportFakeEntity(player, head.getId(), 
+				new Location(player.getWorld(), head.locX, head.locY, head.locZ, head.yaw, 0));
 		}
 		
 		public void remove() {
-			floatTask.cancel();
 			PacketHandler.removeFakeMobs(player, new int[]{head.getId()});
 		}
 	}
@@ -154,7 +170,6 @@ public class ScenarioParadise extends Scenario{
 		
 		private EntityCow cow;
 		private double angle; //Rotation angle around the player
-		private BukkitTask floatTask;
 		
 		public FloatingCow () {
 			cow = new EntityCow(((CraftWorld) player.getWorld()).getHandle());
@@ -164,25 +179,20 @@ public class ScenarioParadise extends Scenario{
 			PacketHandler.spawnNMSLivingEntity(player, cow);
 		}
 		
-		private void startFloating() {
-			//Repeating task that rotates this cow around the player's head
-			floatTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
-				public void run() {
-					angle += Math.PI/24;
+		//rotates the cow to the next position
+		private void move() {
+			angle += Math.PI/24;
+	
+			cow.locX = Math.sin(angle) * 2.5 + player.getLocation().getX();
+			cow.locZ = Math.cos(angle) * 2.5 + player.getLocation().getZ();
 			
-					cow.locX = Math.sin(angle) * 2.5 + player.getLocation().getX();
-					cow.locZ = Math.cos(angle) * 2.5 + player.getLocation().getZ();
-					
-					Location loc = new Location(player.getWorld(), cow.locX, player.getLocation().getY() + 1.5, cow.locZ);
-					loc.setDirection(player.getLocation().subtract(loc).toVector()); //Look at the player
-					
-					PacketHandler.teleportFakeEntity(player, cow.getId(), loc);
-				}
-			}, 0, 1);
+			Location loc = new Location(player.getWorld(), cow.locX, player.getLocation().getY() + 1.5, cow.locZ);
+			loc.setDirection(player.getLocation().subtract(loc).toVector()); //Look at the player
+			
+			PacketHandler.teleportFakeEntity(player, cow.getId(), loc);
 		}
 		
 		public void remove() {
-			floatTask.cancel();
 			PacketHandler.removeFakeMobs(player, new int[]{cow.getId()});
 		}
 	}

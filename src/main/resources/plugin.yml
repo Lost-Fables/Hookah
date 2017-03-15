@@ -18,6 +18,7 @@ permissions:
             hookah.listrecipes: true
             hookah.getdrug: true
             hookah.gethookah: true
+            hookah.reloadrecipes: true
         default: op
     hookah.listcommands:
         description: List all the commands in this plugin
@@ -36,4 +37,7 @@ permissions:
         default: op
     hookah.gethookah:
         description: Gives you a hoo-kah
+        default: op
+    hookah.reloadrecipes:
+        description: reloads recipes from config.yml
         default: op

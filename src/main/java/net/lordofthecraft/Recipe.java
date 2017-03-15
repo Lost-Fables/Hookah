@@ -141,4 +141,8 @@ public class Recipe {
 	public static List<Recipe> getRecipes() {
 		return recipes;
 	}
+	
+	public static void clearRecipes() {
+		recipes.clear();
+	}
 }

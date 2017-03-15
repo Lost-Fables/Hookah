@@ -42,6 +42,10 @@ public class HookahCommandExecutor implements CommandExecutor {
 				// /hookah getHookah
 				if (args[0].equalsIgnoreCase("getHookah")) 
 					if (checkPermission(sender, "hookah.gethookah")) getHookah(sender);
+				
+				// /hookah getHookah
+				if (args[0].equalsIgnoreCase("reloadrecipes")) 
+					if (checkPermission(sender, "hookah.reloadrecipes")) reloadRecipes(sender);
 			}
 			else listHookahCommands(sender); // /hookah
 		}
@@ -153,6 +157,11 @@ public class HookahCommandExecutor implements CommandExecutor {
 			sendMessageToSender(sender, false, "A Hoo-Kah has successfully been added to your inventory!");
 		} else
 			plugin.getLogger().info("You must be in-game to run this command!");
+	}
+	
+	private void reloadRecipes (CommandSender sender) {
+		sendMessageToSender(sender, false, "Recipes reloaded successfully!");
+		plugin.reloadRecipes();
 	}
 	
 	private void listHookahCommands(CommandSender sender) {

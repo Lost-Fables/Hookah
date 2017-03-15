@@ -24,11 +24,10 @@ public class HookahMain extends JavaPlugin{
 	public static HookahMain plugin;
 	
 	public void onEnable() {
-		
 		this.getCommand("hookah").setExecutor(new HookahCommandExecutor(this));
 		
 		createConfig();
-		loadDataFromFile();
+		loadDataFromFile(true);
 		
 		plugin = this;
 		getServer().getPluginManager().registerEvents(new Listeners(), this);
@@ -36,6 +35,12 @@ public class HookahMain extends JavaPlugin{
 	
 	public void onDisable() {
 		saveDataToFile();
+	}
+	
+	public void reloadRecipes() {
+		Recipe.clearRecipes();
+		this.reloadConfig();
+		loadDataFromFile(false);
 	}
 	
 	private void createConfig() {
@@ -53,7 +58,7 @@ public class HookahMain extends JavaPlugin{
 	}
 	
 	//saves data to the config.yml and hookahs.yml files
-	public void saveDataToFile() {
+	private void saveDataToFile() {
 		saveHookahs();
 		for (Recipe recipe: Recipe.getRecipes()) {
 			String id = String.valueOf(recipe.getId());
@@ -72,7 +77,7 @@ public class HookahMain extends JavaPlugin{
 	}
 	
 	//loads data from the config.yml and hookahs.yml files
-	public void loadDataFromFile() {
+	private void loadDataFromFile(boolean loadHookahs) {
 		ConfigurationSection section = this.getConfig().getConfigurationSection("recipes");
 		if (section == null) return;
 		
@@ -97,7 +102,8 @@ public class HookahMain extends JavaPlugin{
 				}
 			}
 		}
-		loadHookahs();
+		if (loadHookahs) loadHookahs();
+		
 	}
 	
 	//save hookahs into a hookahs.yml file

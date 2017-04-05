@@ -43,7 +43,7 @@ public class Listeners implements Listener{
 		if (ih instanceof BrewingStand) {
 			BrewingStand st = (BrewingStand) ih;
 			WeakLocation loc = new WeakLocation(st.getBlock().getLocation());
-			if (Hookah.getLocations().contains(loc)) {
+			if (Hookah.getLocations().contains(loc) && (e.getPlayer().getGameMode() != GameMode.CREATIVE || e.getPlayer().hasPermission("lc.admin") || e.getPlayer().hasPermission("lc.dev"))) {
 				e.setCancelled(true);
 				Hookah currentHookah = Hookah.getHookah(loc);
 				Player p = (Player) e.getPlayer();

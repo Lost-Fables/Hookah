@@ -13,6 +13,7 @@ import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -99,26 +100,32 @@ public class Listeners implements Listener{
 		e.setCancelled(true);
 	}
 	
-	@EventHandler //Keeps track of hookah locations
-	public void onBlockBreak(BlockBreakEvent e) {
-		if (!Hookah.getLocations().contains(new WeakLocation(e.getBlock().getLocation()))) return;
-		e.setCancelled(true);
-		Block block = e.getBlock();
-		block.setType(Material.AIR);
-		
-		if (e.getPlayer().getGameMode() != GameMode.CREATIVE)
-			block.getWorld().dropItem(block.getLocation(), Hookah.generateHookah());
-		
-		Inventory inventory = Hookah.getHookah(new WeakLocation(block.getLocation())).getInventory();
-		//10, 11, 12, 13, 16 (Drop any items inside the hookah)
-		for (int slot = 10; slot <= 16; slot++) {
-			if (slot == 14 || slot == 15) continue;
-			if (inventory.getItem(slot) == null) continue;
-			block.getWorld().dropItemNaturally(block.getLocation(), inventory.getItem(slot));
-		}
-		
-		Hookah.removeHookah(new WeakLocation(block.getLocation()));
-	}
+    @EventHandler //Keeps track of hookah locations
+    public void onBlockBreak(BlockBreakEvent e) {
+        if (!Hookah.getLocations().contains(new WeakLocation(e.getBlock().getLocation()))) return;
+        e.setCancelled(true);
+        Block block = e.getBlock();
+        block.setType(Material.AIR);
+        
+        if (e.getPlayer().getGameMode() != GameMode.CREATIVE)
+            block.getWorld().dropItem(block.getLocation(), Hookah.generateHookah());
+        
+        Inventory inventory = Hookah.getHookah(new WeakLocation(block.getLocation())).getInventory();
+        
+        //Close all open inventories
+        for (HumanEntity viewer: inventory.getViewers().toArray(new HumanEntity[inventory.getViewers().size()])) {
+            viewer.closeInventory();
+        }
+        
+        //10, 11, 12, 13, 16 (Drop any items inside the hookah)
+        for (int slot = 10; slot <= 16; slot++) {
+            if (slot == 14 || slot == 15) continue;
+            if (inventory.getItem(slot) == null) continue;
+            block.getWorld().dropItemNaturally(block.getLocation(), inventory.getItem(slot));
+        }
+        
+        Hookah.removeHookah(new WeakLocation(block.getLocation()));
+    }
 	
 	@EventHandler 
 	public void onInventoryClick(InventoryClickEvent e) {

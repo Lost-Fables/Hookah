@@ -1,15 +1,13 @@
 package net.lordofthecraft;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import io.github.archemedes.customitem.CustomTag;
+import net.lordofthecraft.Scenarios.Scenario.Scenarios;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import io.github.archemedes.customitem.Customizer;
-import io.github.archemedes.customitem.TagCompound;
-import net.lordofthecraft.Scenarios.Scenario.Scenarios;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Recipe {
 	
@@ -55,9 +53,9 @@ public class Recipe {
 	
 	//Adds a NBT to the drug item for future identification purposes
 	private void setDrugItem(ItemStack drugItem) {
-		TagCompound tc = TagCompound.emptyCompound();;
-		tc.addValue("isDrug", "true");
-		this.drugItem = Customizer.setCompound(drugItem, tc);
+        CustomTag tag = new CustomTag();
+        tag.put("isDrug", "true");
+        this.drugItem = tag.apply(drugItem);
 	}
 	
 	public ItemStack getDrugItem() {

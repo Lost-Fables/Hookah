@@ -1,32 +1,22 @@
 package net.lordofthecraft;
 
-import java.util.List;
-
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-
-import com.comphenix.packetwrapper.WrapperPlayServerCamera;
-import com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
-import com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment;
-import com.comphenix.packetwrapper.WrapperPlayServerEntityLook;
-import com.comphenix.packetwrapper.WrapperPlayServerEntityTeleport;
-import com.comphenix.packetwrapper.WrapperPlayServerMultiBlockChange;
-import com.comphenix.packetwrapper.WrapperPlayServerSpawnEntityLiving;
-import com.comphenix.packetwrapper.WrapperPlayServerWorldBorder;
-import com.comphenix.packetwrapper.WrapperPlayServerWorldParticles;
+import com.comphenix.packetwrapper.*;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 import com.comphenix.protocol.wrappers.EnumWrappers.WorldBorderAction;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
+import net.minecraft.server.v1_12_R1.EntityLiving;
+import net.minecraft.server.v1_12_R1.PacketPlayOutMapChunk;
+import net.minecraft.server.v1_12_R1.PacketPlayOutSpawnEntityLiving;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-import net.minecraft.server.v1_11_R1.EntityLiving;
-import net.minecraft.server.v1_11_R1.PacketPlayOutMapChunk;
-import net.minecraft.server.v1_11_R1.PacketPlayOutSpawnEntityLiving;
+import java.util.List;
 
 /*
  * Class containing all the different methods we use to
@@ -109,7 +99,7 @@ public abstract class PacketHandler {
 	}
 	
 	//NMS :(
-	public static void sendNMSChunkPacket(Player player, net.minecraft.server.v1_11_R1.Chunk chunk) {
+    public static void sendNMSChunkPacket(Player player, net.minecraft.server.v1_12_R1.Chunk chunk) {
 		((CraftPlayer)player).getHandle().playerConnection.sendPacket(new PacketPlayOutMapChunk(chunk, 0xffff));
 	}
 	

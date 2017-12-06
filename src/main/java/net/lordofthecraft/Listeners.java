@@ -1,16 +1,9 @@
 package net.lordofthecraft;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import io.github.archemedes.customitem.CustomTag;
+import net.lordofthecraft.Scenarios.Scenario;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.HumanEntity;
@@ -18,21 +11,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-import io.github.archemedes.customitem.Customizer;
-import net.lordofthecraft.Scenarios.Scenario;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class Listeners implements Listener{
 	
@@ -84,19 +76,14 @@ public class Listeners implements Listener{
 	
 	@EventHandler //Keeps track of hookah locations
 	public void onBlockPlace(BlockPlaceEvent e) {
-		if (e.getItemInHand().getType() != Material.BREWING_STAND_ITEM) return;
-		if (!(Customizer.hasCompound((e.getItemInHand())))) return;
-		if (!(Customizer.getCompound(e.getItemInHand()).hasKey("nexuscraft"))) return; //NBT to make sure its a hookah
-		if (!(Customizer.getCompound(e.getItemInHand()).getValue("nexuscraft").getValue().equalsIgnoreCase("hookah"))) return;
+        if (!isHookah(e.getItemInHand())) return;
 		
 		Hookah.addHookah(new WeakLocation(e.getBlock().getLocation()), new Hookah());
 	}
 	
 	@EventHandler //Prevents from placing drug items
 	public void onDrugPlace(BlockPlaceEvent e) {
-		if (!(Customizer.hasCompound((e.getItemInHand())))) return;
-		if (!(Customizer.getCompound(e.getItemInHand()).hasKey("isDrug"))) return; //NBT to make sure its a drug
-		if (!(Customizer.getCompound(e.getItemInHand()).getValue("isDrug").getValue().equalsIgnoreCase("true"))) return;
+        if (!isHookah(e.getItemInHand())) return;
 		e.setCancelled(true);
 	}
 	
@@ -132,17 +119,17 @@ public class Listeners implements Listener{
 		//GREAT WALL OF GYNA
 		if (!(e.getInventory().getSize() > 31)) return;
 		if (e.getInventory().getItem(31) == null) return;
-		if (!Customizer.hasCompound(e.getInventory().getItem(31))) return;
-		if (!Customizer.getCompound(e.getInventory().getItem(31)).hasKey("location")) return;
+        if (!CustomTag.hasCustomTag(e.getInventory().getItem(31), "hookahlocation")) return;
 		if (e.getCurrentItem() == null) return;
 		if (e.getCurrentItem().getItemMeta() == null) return;
 		if (e.getRawSlot() >= e.getInventory().getSize()) return;
 		
 		//prevent info paper from being picked up
-		if (Customizer.hasCompound(e.getCurrentItem())) {
-			if (Customizer.getCompound(e.getCurrentItem()).hasKey("location")) e.setCancelled(true);
+        if (CustomTag.hasCustomTag(e.getCurrentItem(), "hookahlocation")) {
+            e.setCancelled(true);
 			return;
 		}
+        CustomTag tag = CustomTag.getFrom(e.getInventory().getItem(31));
 		
 		//prevent any other interface items from being picked up
 		for (ItemStack item: Hookah.getInterfaceItems()) {
@@ -152,7 +139,7 @@ public class Listeners implements Listener{
 		
 		//Get the current Hookah from the NBT inside the info paper
 		String stockedLoc[] = // "world;x;y;z"
-				Customizer.getCompound(e.getInventory().getItem(31)).getValue("location").getValue().split(";"); 
+                tag.get("hookahlocation").split(";");
 		Hookah currentHookah = Hookah.getHookah(new WeakLocation(stockedLoc[0],
 				Integer.parseInt(stockedLoc[1]),
 				Integer.parseInt(stockedLoc[2]),
@@ -164,17 +151,18 @@ public class Listeners implements Listener{
 				((Player) e.getWhoClicked()).updateInventory();
 			else {
 				currentHookah.playWrongRecipe();
-				((Player) e.getWhoClicked()).playSound(((Player) e.getWhoClicked()).getLocation(), 
+                ((Player) e.getWhoClicked()).playSound(e.getWhoClicked().getLocation(),
 						Sound.BLOCK_REDSTONE_TORCH_BURNOUT, SoundCategory.VOICE, 1f, 1f);
 			}
 		}
 		
 		//light drug
 		if (e.getCurrentItem().getItemMeta().equals(Hookah.getInterfaceItems().get(2).getItemMeta())) {
+
 			if (e.getInventory().getItem(16) == null) return;
-			for (Recipe recipe: Recipe.getRecipes()) {
+            for (Recipe recipe : Recipe.getRecipes()) {
 				if (e.getInventory().getItem(16).getItemMeta().equals(recipe.getDrugItem().getItemMeta()) &&
-						Customizer.getCompound(e.getInventory().getItem(16)).hasKey("isDrug")) {
+                        CustomTag.hasCustomTag(e.getInventory().getItem(16), "isDrug")) {
 					currentHookah.lightDrug(recipe);
 					return;
 				}
@@ -213,4 +201,8 @@ public class Listeners implements Listener{
 		if (DefaultHigh.getActiveHighs().containsKey(e.getPlayer().getUniqueId()))
 			DefaultHigh.remove(e.getPlayer());
 	}
+
+    static boolean isHookah(ItemStack is) {
+        return is.getType() == Material.BREWING_STAND_ITEM && CustomTag.hasCustomTag(is, "hookah");
+    }
 }

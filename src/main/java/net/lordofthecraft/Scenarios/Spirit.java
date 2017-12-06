@@ -1,17 +1,15 @@
 package net.lordofthecraft.Scenarios;
 
+import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
+import net.lordofthecraft.HookahMain;
+import net.lordofthecraft.PacketHandler;
+import net.minecraft.server.v1_12_R1.EntityArmorStand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
-
-import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
-
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
-import net.minecraft.server.v1_11_R1.EntityArmorStand;
 
 /*
  * Credit goes to SteeZyyy for the math contained in this class.

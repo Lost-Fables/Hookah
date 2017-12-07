@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.lordofthecraft</groupId>
     <artifactId>Hookah</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <name>Hookah</name>
 
     <properties>
@@ -23,10 +23,6 @@
         <repository>
             <id>dmulloy2-repo</id>
             <url>http://repo.dmulloy2.net/content/groups/public/</url>
-        </repository>
-        <repository>
-            <id>tofuus-repo</id>
-            <url>http://repo.tofuus.com/repository/tofuus-repo/</url>
         </repository>
         <repository>
             <id>lotc-release</id>
@@ -57,12 +53,12 @@
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib-API</artifactId>
-            <version>4.1.0</version>
+            <version>4.3.0</version>
         </dependency>
         <dependency>
             <groupId>com.comphenix.packetwrapper</groupId>
             <artifactId>PacketWrapper</artifactId>
-            <version>1.11-R0.1-SNAPSHOT</version>
+            <version>1.12.1-R0.1-20171110.175602-3</version>
         </dependency>
         <dependency>
             <groupId>net.lordofthecraft.arche</groupId>
@@ -91,6 +87,35 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <!--<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.5</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/classes/lib</outputDirectory>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>sources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <verbose>true</verbose>
+                    <detail>true</detail>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                </configuration>
+            </plugin>-->
         </plugins>
     </build>
 </project>

@@ -1,5 +1,6 @@
 package net.lordofthecraft;
 
+import io.github.archemedes.customitem.CustomItem;
 import net.lordofthecraft.Scenarios.Scenario.Scenarios;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,6 +40,7 @@ public class HookahMain extends JavaPlugin {
                 .setIngredient('f', Material.FLINT_AND_STEEL)
                 .setIngredient('c', Material.COBBLESTONE);
         getServer().addRecipe(recipe);
+        CustomItem.makeUnplaceable("isDrug");
     }
 
     public void onDisable() {

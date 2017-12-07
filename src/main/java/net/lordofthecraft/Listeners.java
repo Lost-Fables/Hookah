@@ -81,11 +81,11 @@ public class Listeners implements Listener{
 		Hookah.addHookah(new WeakLocation(e.getBlock().getLocation()), new Hookah());
 	}
 	
-	@EventHandler //Prevents from placing drug items
+	/*@EventHandler //Prevents from placing drug items
 	public void onDrugPlace(BlockPlaceEvent e) {
         if (!isHookah(e.getItemInHand())) return;
 		e.setCancelled(true);
-	}
+	}*/
 	
     @EventHandler //Keeps track of hookah locations
     public void onBlockBreak(BlockBreakEvent e) {
@@ -119,46 +119,47 @@ public class Listeners implements Listener{
 		//GREAT WALL OF GYNA
 		if (!(e.getInventory().getSize() > 31)) return;
 		if (e.getInventory().getItem(31) == null) return;
-        if (!CustomTag.hasCustomTag(e.getInventory().getItem(31), "hookahlocation")) return;
+        if (!CustomTag.hasCustomTag(e.getInventory().getItem(31), "hookahloc")) return;
 		if (e.getCurrentItem() == null) return;
 		if (e.getCurrentItem().getItemMeta() == null) return;
 		if (e.getRawSlot() >= e.getInventory().getSize()) return;
-		
+
 		//prevent info paper from being picked up
-        if (CustomTag.hasCustomTag(e.getCurrentItem(), "hookahlocation")) {
+        if (CustomTag.hasCustomTag(e.getCurrentItem(), "hookahloc")) {
             e.setCancelled(true);
 			return;
 		}
         CustomTag tag = CustomTag.getFrom(e.getInventory().getItem(31));
-		
+
 		//prevent any other interface items from being picked up
 		for (ItemStack item: Hookah.getInterfaceItems()) {
-			if (item.getItemMeta().equals(e.getCurrentItem().getItemMeta()))
-				e.setCancelled(true);
-		}
-		
+            if (item.getItemMeta().equals(e.getCurrentItem().getItemMeta())) {
+                e.setCancelled(true);
+            }
+
+        }
+
 		//Get the current Hookah from the NBT inside the info paper
 		String stockedLoc[] = // "world;x;y;z"
-                tag.get("hookahlocation").split(";");
+                tag.get("hookahloc").split(";");
 		Hookah currentHookah = Hookah.getHookah(new WeakLocation(stockedLoc[0],
 				Integer.parseInt(stockedLoc[1]),
 				Integer.parseInt(stockedLoc[2]),
 				Integer.parseInt(stockedLoc[3])));
-		
-		//combine ingredients
+
+        //combine ingredients
 		if (e.getCurrentItem().getItemMeta().equals(Hookah.getInterfaceItems().get(0).getItemMeta())) {
-			if (currentHookah.combineIngredients((Player) e.getWhoClicked(), (e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)))
-				((Player) e.getWhoClicked()).updateInventory();
-			else {
+            if (currentHookah.combineIngredients((Player) e.getWhoClicked(), (e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY))) {
+                ((Player) e.getWhoClicked()).updateInventory();
+            } else {
 				currentHookah.playWrongRecipe();
                 ((Player) e.getWhoClicked()).playSound(e.getWhoClicked().getLocation(),
 						Sound.BLOCK_REDSTONE_TORCH_BURNOUT, SoundCategory.VOICE, 1f, 1f);
 			}
 		}
-		
-		//light drug
-		if (e.getCurrentItem().getItemMeta().equals(Hookah.getInterfaceItems().get(2).getItemMeta())) {
 
+        //light drug
+		if (e.getCurrentItem().getItemMeta().equals(Hookah.getInterfaceItems().get(2).getItemMeta())) {
 			if (e.getInventory().getItem(16) == null) return;
             for (Recipe recipe : Recipe.getRecipes()) {
 				if (e.getInventory().getItem(16).getItemMeta().equals(recipe.getDrugItem().getItemMeta()) &&

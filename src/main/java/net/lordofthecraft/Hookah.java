@@ -37,7 +37,11 @@ public class Hookah {
 	public Inventory getInventory() {
 		return inventory;
 	}
-	
+
+	public static boolean isHookah(Location location) {
+	  return hookahs.keySet().contains(new WeakLocation(location));
+  }
+
 	/**
 	 * Only returns ingredient slots that contain an ItemStack
 	 * @return List of slot id values that contain ingredients, null if empty

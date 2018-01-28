@@ -1,23 +1,20 @@
 package net.lordofthecraft;
 
 import io.github.archemedes.customitem.CustomItem;
-import net.lordofthecraft.Scenarios.Scenario.Scenarios;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import net.lordofthecraft.Scenarios.Scenario.Scenarios;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class HookahMain extends JavaPlugin {
 
@@ -32,6 +29,7 @@ public class HookahMain extends JavaPlugin {
         plugin = this;
         getServer().getPluginManager().registerEvents(new Listeners(), this);
 
+        /* Removing this recipe in favor of selling it at CT
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(this, "hookah"), Hookah.generateHookah())
                 .shape("asa", "aga", "cfc")
                 .setIngredient('a', Material.AIR)
@@ -39,7 +37,8 @@ public class HookahMain extends JavaPlugin {
                 .setIngredient('g', Material.GLASS)
                 .setIngredient('f', Material.FLINT_AND_STEEL)
                 .setIngredient('c', Material.COBBLESTONE);
-        getServer().addRecipe(recipe);
+        getServer().addRecipe(recipe);*/
+
         CustomItem.makeUnplaceable("isDrug");
     }
 

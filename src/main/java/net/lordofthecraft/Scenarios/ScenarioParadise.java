@@ -1,28 +1,23 @@
 package net.lordofthecraft.Scenarios;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
+import net.lordofthecraft.HookahMain;
+import net.lordofthecraft.PacketHandler;
+import net.md_5.bungee.api.ChatColor;
+import net.minecraft.server.v1_12_R1.EntityArmorStand;
+import net.minecraft.server.v1_12_R1.EntityCow;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
-import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
-
-import io.github.archemedes.customitem.Customizer;
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
-import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_11_R1.EntityArmorStand;
-import net.minecraft.server.v1_11_R1.EntityCow;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScenarioParadise extends Scenario{
 	

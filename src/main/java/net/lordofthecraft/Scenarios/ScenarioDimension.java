@@ -1,26 +1,19 @@
 package net.lordofthecraft.Scenarios;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
-import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
+import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
+import com.comphenix.protocol.wrappers.WrappedBlockData;
+import net.lordofthecraft.HookahMain;
+import net.lordofthecraft.PacketHandler;
+import net.minecraft.server.v1_12_R1.EntityArmorStand;
+import org.bukkit.*;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
-import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
-import com.comphenix.protocol.wrappers.WrappedBlockData;
-
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
-import net.minecraft.server.v1_11_R1.EntityArmorStand;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScenarioDimension extends Scenario{
 	
@@ -35,9 +28,9 @@ public class ScenarioDimension extends Scenario{
 	
 	public boolean play() {
 		chunk = player.getLocation().getChunk();
-		
-		chunkData = spawnDimension();;
-		camera = initCamera();
+
+        chunkData = spawnDimension();
+        camera = initCamera();
 		
 		//Repeating task that plays portal sounds around the player
 		ambientTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable () {

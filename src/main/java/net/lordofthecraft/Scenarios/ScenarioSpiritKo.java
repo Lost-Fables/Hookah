@@ -1,28 +1,22 @@
 package net.lordofthecraft.Scenarios;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_11_R1.CraftChunk;
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-
 import com.comphenix.packetwrapper.WrapperPlayServerMultiBlockChange;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-
 import net.lordofthecraft.HookahMain;
 import net.lordofthecraft.PacketHandler;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.*;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_12_R1.CraftChunk;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScenarioSpiritKo extends Scenario{
 
@@ -120,8 +114,8 @@ public class ScenarioSpiritKo extends Scenario{
 			
 			//Delay packets to reduce lag
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
-				public void run () {;
-					packet.sendPacket(player);
+                public void run() {
+                    packet.sendPacket(player);
 				}
 			}, i * 2);
 		}

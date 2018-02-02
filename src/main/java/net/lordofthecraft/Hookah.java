@@ -1,28 +1,15 @@
 package net.lordofthecraft;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import io.github.archemedes.customitem.CustomTag;
+import net.lordofthecraft.Scenarios.Scenario;
+import net.md_5.bungee.api.ChatColor;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import io.github.archemedes.customitem.Customizer;
-import io.github.archemedes.customitem.TagCompound;
-import net.lordofthecraft.Scenarios.Scenario;
-import net.md_5.bungee.api.ChatColor;
+import java.util.*;
 
 public class Hookah {
 	
@@ -50,7 +37,11 @@ public class Hookah {
 	public Inventory getInventory() {
 		return inventory;
 	}
-	
+
+	public static boolean isHookah(Location location) {
+	  return hookahs.keySet().contains(new WeakLocation(location));
+  }
+
 	/**
 	 * Only returns ingredient slots that contain an ItemStack
 	 * @return List of slot id values that contain ingredients, null if empty
@@ -267,10 +258,9 @@ public class Hookah {
 	
 	public static void addHookah(WeakLocation loc, Hookah hookah) {
 		//Save the location as an NBT inside the infoPaper item as "world;x;y;z"
-		TagCompound tc = TagCompound.emptyCompound();
-		tc.addValue("location", loc.toString());
-		hookah.getInventory().setItem(31, 
-				Customizer.setCompound(hookah.getInventory().getItem(31), tc));
+        CustomTag tag = new CustomTag();
+        tag.put("hookahloc", loc.toString());
+        hookah.getInventory().setItem(31, tag.apply(hookah.getInventory().getItem(31)));
 		
 		hookah.setLocation(loc);
 		hookahs.put(loc, hookah);
@@ -299,10 +289,10 @@ public class Hookah {
 		meta.setLore(Arrays.asList(ChatColor.GRAY + "A simple device used to produce and consume", 
 				ChatColor.GRAY + "a various amount of high quality produce."));
 		hookah.setItemMeta(meta);
-		
-		TagCompound tc = TagCompound.emptyCompound();
-		tc.addValue("nexuscraft", "hookah");
-		return Customizer.setCompound(hookah, tc);
+
+        CustomTag ct = new CustomTag();
+        ct.put("hookah", "hookah");
+        return ct.apply(hookah);
 	}
 	
 	private static Inventory generateDefaultInventory() {

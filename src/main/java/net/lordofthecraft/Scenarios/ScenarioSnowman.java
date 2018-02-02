@@ -1,20 +1,19 @@
 package net.lordofthecraft.Scenarios;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import net.lordofthecraft.HookahMain;
+import net.lordofthecraft.PacketHandler;
+import net.minecraft.server.v1_12_R1.EntitySnowman;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
-import net.minecraft.server.v1_11_R1.EntitySnowman;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ScenarioSnowman extends Scenario{
 

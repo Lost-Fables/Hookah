@@ -1,6 +1,6 @@
 name: Hookah
 main: net.lordofthecraft.hookah.HookahPlugin
-version: 1.0
+version: ${project.version}
 author: dsdevil
 depend: [CustomItem, ProtocolLib, ArcheCore, PacketWrapper]
 soft-depend: [HawkEye]

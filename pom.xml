@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.lordofthecraft</groupId>
 	<artifactId>Hookah</artifactId>
-	<version>1.1</version>
+	<version>1.2</version>
 	<name>Hookah</name>
 
 	<properties>

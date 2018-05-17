@@ -3,6 +3,9 @@ package net.lordofthecraft.hookah;
 
 import io.github.archemedes.customitem.CustomTag;
 import net.lordofthecraft.hookah.scenarios.Scenario;
+import uk.co.oliwali.HawkEye.DataType;
+import uk.co.oliwali.HawkEye.entry.BlockEntry;
+import uk.co.oliwali.HawkEye.util.HawkEyeAPI;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -30,6 +33,11 @@ import java.util.UUID;
 public class Listeners implements Listener{
 	
 	private List<UUID> cooldowns = new ArrayList<>();
+	private boolean hawkeyeEnabled;
+	
+	public Listeners (HookahPlugin plugin) {
+		hawkeyeEnabled = (plugin.getServer().getPluginManager().getPlugin("HawkEye") != null);
+	}
 
 	@EventHandler(ignoreCancelled = false, priority = EventPriority.HIGH)
 	public void onOpenInventory(InventoryOpenEvent e) {
@@ -93,6 +101,10 @@ public class Listeners implements Listener{
         if (!Hookah.getLocations().contains(new WeakLocation(e.getBlock().getLocation()))) return;
         e.setCancelled(true);
         Block block = e.getBlock();
+        
+        if (hawkeyeEnabled) 
+        	HawkEyeAPI.addEntry(new BlockEntry(e.getPlayer(), DataType.BLOCK_BREAK, block));
+        
         block.setType(Material.AIR);
         
         if (e.getPlayer().getGameMode() != GameMode.CREATIVE)
@@ -113,6 +125,7 @@ public class Listeners implements Listener{
         }
         
         Hookah.removeHookah(new WeakLocation(block.getLocation()));
+        
     }
 	
 	@EventHandler 

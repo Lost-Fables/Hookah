@@ -87,7 +87,7 @@ public class Listeners implements Listener{
 		e.setCancelled(true);
 	}*/
 	
-    @EventHandler //Keeps track of hookah locations
+    @EventHandler (ignoreCancelled = true, priority = EventPriority.HIGHEST) //Keeps track of hookah locations
     public void onBlockBreak(BlockBreakEvent e) {
         if (!Hookah.getLocations().contains(new WeakLocation(e.getBlock().getLocation()))) return;
         e.setCancelled(true);

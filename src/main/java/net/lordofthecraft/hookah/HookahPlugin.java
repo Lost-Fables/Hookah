@@ -29,7 +29,7 @@ public class HookahPlugin extends JavaPlugin {
         loadDataFromFile(true);
 
         plugin = this;
-        getServer().getPluginManager().registerEvents(new Listeners(), this);
+        getServer().getPluginManager().registerEvents(new Listeners(this), this);
 
         /* Removing this recipe in favor of selling it at CT
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(this, "hookah"), Hookah.generateHookah())

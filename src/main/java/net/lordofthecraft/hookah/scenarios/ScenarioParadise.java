@@ -1,8 +1,9 @@
-package net.lordofthecraft.Scenarios;
+package net.lordofthecraft.hookah.scenarios;
 
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
+
+import net.lordofthecraft.hookah.HookahPlugin;
+import net.lordofthecraft.hookah.PacketHandler;
 import net.md_5.bungee.api.ChatColor;
 import net.minecraft.server.v1_12_R1.EntityArmorStand;
 import net.minecraft.server.v1_12_R1.EntityCow;
@@ -46,7 +47,7 @@ public class ScenarioParadise extends Scenario{
 		
 		//Spawn the 3 cows that circle the player's head
 		for (int i = 0; i < 3; i++) {
-			tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
+			tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
 				public void run() {
 					floatingCows.add(new FloatingCow());
 				}
@@ -54,7 +55,7 @@ public class ScenarioParadise extends Scenario{
 		}
 		
 		//Repeating task that summons a floating head every tick
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				//generates a random position in a 32x12x32 cube around the player
 				Location startPosition = new Location(player.getWorld(), 
@@ -68,7 +69,7 @@ public class ScenarioParadise extends Scenario{
 		startFloating();
 		
 		//Task that cleans everything once the scenario is over.
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				remove();
 			}
@@ -89,7 +90,7 @@ public class ScenarioParadise extends Scenario{
 	}
 	
 	private void startFloating() {
-		floatTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		floatTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				FloatingHead[] headsArray = floatingHeads.toArray(new FloatingHead[floatingHeads.size()]);
 				for (int i = 0; i < headsArray.length; i++) {
@@ -139,7 +140,7 @@ public class ScenarioParadise extends Scenario{
 			intensity = (Math.random() * 4) + 1;
 			
 			//Attach the head to the armorstand 1 tick later to make sure it's had time to spawn
-			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
+			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
 				public void run() {
 					PacketHandler.sendEquipment(player, head.getId(), ItemSlot.HEAD, getRandomDecoration());
 				}

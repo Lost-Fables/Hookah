@@ -1,13 +1,15 @@
-package net.lordofthecraft;
+package net.lordofthecraft.hookah;
 
 import io.github.archemedes.customitem.CustomItem;
+import net.lordofthecraft.hookah.scenarios.Scenario.Scenarios;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import net.lordofthecraft.Scenarios.Scenario.Scenarios;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -16,9 +18,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class HookahMain extends JavaPlugin {
+public class HookahPlugin extends JavaPlugin {
 
-    public static HookahMain plugin;
+    public static HookahPlugin plugin;
 
     public void onEnable() {
         this.getCommand("hookah").setExecutor(new HookahCommandExecutor(this));

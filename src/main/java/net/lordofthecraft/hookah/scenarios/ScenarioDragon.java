@@ -1,7 +1,7 @@
-package net.lordofthecraft.Scenarios;
+package net.lordofthecraft.hookah.scenarios;
 
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
+import net.lordofthecraft.hookah.HookahPlugin;
+import net.lordofthecraft.hookah.PacketHandler;
 import net.minecraft.server.v1_12_R1.EntityEnderDragon;
 import net.minecraft.server.v1_12_R1.EntityZombie;
 import org.bukkit.Bukkit;
@@ -44,35 +44,35 @@ public class ScenarioDragon extends Scenario{
 		player.playSound(player.getLocation().subtract(0, 5, 0), Sound.ENTITY_ENDERDRAGON_GROWL, 1f, 1f);
 		
 		//Delay moving the camera for artistic effect
-		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
+		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				PacketHandler.moveCamera(player, camera.getId());
 			}
 		}, 60);
 		
 		//Plays dragon sounds
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				playRandomAmbientSound();
 			}
 		}, 60, 60));
 		
 		//Plays the elytra flight sound during the scenario
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, 0.5f, 1f);
 			}
 		}, 60, 180));
 		
 		//Task that makes the dragon moves around
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				moveCameraAndDragon();
 			}
 		}, 0, 1));
 		
 		//Task that ends the scenario
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				remove();
 			}
@@ -124,7 +124,7 @@ public class ScenarioDragon extends Scenario{
 		
 		Location copyloc = loc.clone();
 		//keeps the dragon 1 tick behind the camera to simulate dragon riding
-		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
+		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				PacketHandler.teleportFakeEntity(player, dragon.getId(), copyloc);
 			}
@@ -145,7 +145,7 @@ public class ScenarioDragon extends Scenario{
 	
 	private void playWingsFlappingSound() {
 		for (int i = 0; i < 3; i++) {
-			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
+			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
 				public void run() {
 					player.playSound(player.getLocation(), Sound.ENTITY_ENDERDRAGON_FLAP, 1f, 1f);
 				}

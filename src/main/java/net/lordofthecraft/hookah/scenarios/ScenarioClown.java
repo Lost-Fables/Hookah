@@ -1,4 +1,4 @@
-package net.lordofthecraft.Scenarios;
+package net.lordofthecraft.hookah.scenarios;
 
 import com.comphenix.packetwrapper.WrapperPlayServerMultiBlockChange;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
@@ -6,8 +6,9 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.google.common.primitives.Ints;
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
+
+import net.lordofthecraft.hookah.HookahPlugin;
+import net.lordofthecraft.hookah.PacketHandler;
 import net.minecraft.server.v1_12_R1.EntityCow;
 import net.minecraft.server.v1_12_R1.PacketPlayOutSpawnEntityLiving;
 import org.bukkit.*;
@@ -59,19 +60,19 @@ public class ScenarioClown extends Scenario{
 		PacketHandler.toggleRedTint(player, true);
 		
 		//start disco spam;
-		int taskID = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(HookahMain.plugin, new Runnable() {
+		int taskID = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(HookahPlugin.plugin, new Runnable() {
 			public void run () {
 				spawnDisco(formWalls);
 				if (formWalls) formWalls = false;
 				spawnDiscoCow((int) (Math.random() * 8 + 6));
 			}
 		}, 0, 20);
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
 			public void run () {
 				Bukkit.getServer().getScheduler().cancelTask(taskID);
 				PacketHandler.toggleRedTint(player, false);
 				
-				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
 					public void run () {
 						player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 2));
 						for (int task: cowTasks) {
@@ -100,7 +101,7 @@ public class ScenarioClown extends Scenario{
 			
 			((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutSpawnEntityLiving(cow));
 			
-			cowTasks.add(Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+			cowTasks.add(Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
 				public void run () {
 					cows.remove(new Integer(cow.getId()));
 					PacketHandler.removeFakeMobs(player, new int[]{cow.getId()});
@@ -184,7 +185,7 @@ public class ScenarioClown extends Scenario{
 			packet.setRecords(records.get(i).toArray(new MultiBlockChangeInfo[records.get(i).size()]));
 			
 			//Delay packets to reduce lag
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
                 public void run() {
                     packet.sendPacket(player);
 				}

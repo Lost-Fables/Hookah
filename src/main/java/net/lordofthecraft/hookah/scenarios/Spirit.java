@@ -1,8 +1,9 @@
-package net.lordofthecraft.Scenarios;
+package net.lordofthecraft.hookah.scenarios;
 
 import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
+
+import net.lordofthecraft.hookah.HookahPlugin;
+import net.lordofthecraft.hookah.PacketHandler;
 import net.minecraft.server.v1_12_R1.EntityArmorStand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -26,7 +27,7 @@ public class Spirit {
 	public void spawn(final Player player, Particle main, Particle secondary, int speed, String name) {
 		stand = initStand(player, name);
 		//Task that moves the spirit around the player.
-		mainTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		mainTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				t = t + Math.PI/200;
 				final Location loc = player.getLocation();

@@ -1,7 +1,8 @@
-package net.lordofthecraft;
+package net.lordofthecraft.hookah;
 
 import io.github.archemedes.customitem.CustomTag;
-import net.lordofthecraft.Scenarios.Scenario.Scenarios;
+import net.lordofthecraft.hookah.scenarios.Scenario.Scenarios;
+
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;

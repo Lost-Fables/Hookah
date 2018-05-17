@@ -1,7 +1,7 @@
-package net.lordofthecraft.Scenarios;
+package net.lordofthecraft.hookah.scenarios;
 
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
+import net.lordofthecraft.hookah.HookahPlugin;
+import net.lordofthecraft.hookah.PacketHandler;
 import net.minecraft.server.v1_12_R1.EntityArmorStand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,14 +29,14 @@ public class ScenarioSpin extends Scenario {
 		camera = initCamera();
 		
 		//Delay moving the camera for a few seconds
-		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
+		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				PacketHandler.moveCamera(player, camera.getId());
 			}
 		}, 60);
 		
 		//Rotates the camera linearly faster every tick
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				speed += 0.03f;
 				camera.yaw = spinYaw(camera.yaw, speed);
@@ -45,14 +45,14 @@ public class ScenarioSpin extends Scenario {
 		}, 0, 1));
 		
 		//Plays the elyrta flight sound throughout the scenario
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, 0.5f, 1f);
 			}
 		}, 220, 180));
 		
 		//Ends the scenario after a certain amount of time
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
 			public void run () {
 				remove();
 			}

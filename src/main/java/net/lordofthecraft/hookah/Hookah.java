@@ -1,7 +1,7 @@
-package net.lordofthecraft;
+package net.lordofthecraft.hookah;
 
 import io.github.archemedes.customitem.CustomTag;
-import net.lordofthecraft.Scenarios.Scenario;
+import net.lordofthecraft.hookah.scenarios.Scenario;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -246,7 +246,7 @@ public class Hookah {
 		inventory.setItem(17, interfaceItems.get(5));
 		inventory.setItem(25, interfaceItems.get(5));
 		
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				inventory.setItem(7, interfaceItems.get(4));
 				inventory.setItem(15, interfaceItems.get(4));

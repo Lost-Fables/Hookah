@@ -1,12 +1,13 @@
-package net.lordofthecraft.Scenarios;
+package net.lordofthecraft.hookah.scenarios;
 
 import com.comphenix.packetwrapper.WrapperPlayServerMultiBlockChange;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
+
+import net.lordofthecraft.hookah.HookahPlugin;
+import net.lordofthecraft.hookah.PacketHandler;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -45,7 +46,7 @@ public class ScenarioSpiritKo extends Scenario{
 		Spirit spiritKO = new Spirit();
 		spiritKO.spawn(player, Particle.SMOKE_LARGE, Particle.CLOUD, 2, ChatColor.GRAY + "Spirit KO");
 		
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 2));
 				removeNether();
@@ -113,7 +114,7 @@ public class ScenarioSpiritKo extends Scenario{
 			packet.setRecords(records.get(i).toArray(new MultiBlockChangeInfo[records.get(i).size()]));
 			
 			//Delay packets to reduce lag
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
                 public void run() {
                     packet.sendPacket(player);
 				}

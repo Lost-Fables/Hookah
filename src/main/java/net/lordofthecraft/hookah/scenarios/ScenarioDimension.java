@@ -1,9 +1,10 @@
-package net.lordofthecraft.Scenarios;
+package net.lordofthecraft.hookah.scenarios;
 
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
+
+import net.lordofthecraft.hookah.HookahPlugin;
+import net.lordofthecraft.hookah.PacketHandler;
 import net.minecraft.server.v1_12_R1.EntityArmorStand;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
@@ -33,7 +34,7 @@ public class ScenarioDimension extends Scenario{
         camera = initCamera();
 		
 		//Repeating task that plays portal sounds around the player
-		ambientTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable () {
+		ambientTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable () {
 			public void run() {
 				if (random.nextInt(2) == 0)
 						player.playSound(player.getLocation(), Sound.BLOCK_PORTAL_AMBIENT, SoundCategory.VOICE, 1f, 1f);
@@ -42,7 +43,7 @@ public class ScenarioDimension extends Scenario{
 		tasksToCleanup.add(ambientTask);
 		
 		//Task used to time the effects sent to the player
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				//Stop the portal sounds
 				ambientTask.cancel();
@@ -51,7 +52,7 @@ public class ScenarioDimension extends Scenario{
 				player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 1));
 				
 				//Shows the 'dimension' after a few seconds of silence
-				Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
+				Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
 					public void run () {
 						player.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, SoundCategory.VOICE, 1f, 1f);
 						PacketHandler.moveCamera(player, camera.getId());
@@ -61,7 +62,7 @@ public class ScenarioDimension extends Scenario{
 		}, 200));
 		
 		//Task that ends the scenario
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
 			public void run () {
 				remove();
 			}

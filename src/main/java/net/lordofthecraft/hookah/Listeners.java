@@ -1,8 +1,9 @@
-package net.lordofthecraft;
+package net.lordofthecraft.hookah;
 
 
 import io.github.archemedes.customitem.CustomTag;
-import net.lordofthecraft.Scenarios.Scenario;
+import net.lordofthecraft.hookah.scenarios.Scenario;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
@@ -174,7 +175,7 @@ public class Listeners implements Listener{
 	// 1 second cooldown between hits from the Hoo-Kah
 	private void startCooldown(final Player player) {
 		cooldowns.add(player.getUniqueId());
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				cooldowns.remove(player.getUniqueId());
 			}

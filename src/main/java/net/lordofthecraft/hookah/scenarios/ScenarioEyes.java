@@ -1,8 +1,9 @@
-package net.lordofthecraft.Scenarios;
+package net.lordofthecraft.hookah.scenarios;
 
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
+
+import net.lordofthecraft.hookah.HookahPlugin;
+import net.lordofthecraft.hookah.PacketHandler;
 import net.minecraft.server.v1_12_R1.EntityArmorStand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -36,7 +37,7 @@ public class ScenarioEyes extends Scenario{
 		
 		//Spawns eyeballs every 5 seconds over 50 seconds
 		for (int i = 0; i < 30; i++) {	
-			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
+			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
 				public void run() {
 					EyeBall eyeball = new EyeBall();
 					eyeballs.add(eyeball);
@@ -46,14 +47,14 @@ public class ScenarioEyes extends Scenario{
 			}, i * 40);
 		}
 		
-		BukkitTask soundTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+		BukkitTask soundTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				if (random.nextInt(3) == 0)
 					player.playSound(player.getLocation(), Sound.ENTITY_WITCH_AMBIENT, 1f, 1f);
 			}
 		}, 0, 20);
 		
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				for (EyeBall eyeball: eyeballs) {
 					eyeball.remove();
@@ -88,7 +89,7 @@ public class ScenarioEyes extends Scenario{
 		private void spawn() {
 			//PacketHandler.teleportFakeEntity(player, stand.getId(), randomLocationAroundPlayer());
 			//Stares at the player
-			lookTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahMain.plugin, new Runnable() {
+			lookTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
 				public void run() {
 					lookAtPlayer();
 				}

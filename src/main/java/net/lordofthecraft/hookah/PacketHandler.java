@@ -1,4 +1,4 @@
-package net.lordofthecraft;
+package net.lordofthecraft.hookah;
 
 import com.comphenix.packetwrapper.*;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;

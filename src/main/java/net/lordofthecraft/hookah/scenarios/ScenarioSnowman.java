@@ -1,7 +1,7 @@
-package net.lordofthecraft.Scenarios;
+package net.lordofthecraft.hookah.scenarios;
 
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
+import net.lordofthecraft.hookah.HookahPlugin;
+import net.lordofthecraft.hookah.PacketHandler;
 import net.minecraft.server.v1_12_R1.EntitySnowman;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -37,7 +37,7 @@ public class ScenarioSnowman extends Scenario{
 		
 		//5 snowmen
 		for (int i = 0; i < 5; i++) {
-			tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+			tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
 				public void run() {
 					Spirit path = new Spirit();
 					path.spawn(player, null, null, 1, null);
@@ -53,7 +53,7 @@ public class ScenarioSnowman extends Scenario{
 			}, i * 40));	
 		}
 		
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimer(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimer(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				for (Spirit path: snowmen.keySet()) {
 					if (random.nextInt(100) == 0) player.playSound(player.getLocation(), Sound.ENTITY_SNOWMAN_AMBIENT, 1f, 1f);
@@ -64,7 +64,7 @@ public class ScenarioSnowman extends Scenario{
 			}
 		}, 0, 1));
 		
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
 			public void run() {
 				remove();
 			}

@@ -1,8 +1,9 @@
-package net.lordofthecraft.Scenarios;
+package net.lordofthecraft.hookah.scenarios;
 
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
-import net.lordofthecraft.HookahMain;
-import net.lordofthecraft.PacketHandler;
+
+import net.lordofthecraft.hookah.HookahPlugin;
+import net.lordofthecraft.hookah.PacketHandler;
 import net.minecraft.server.v1_12_R1.EntityArmorStand;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
@@ -38,7 +39,7 @@ public class ScenarioHeads extends Scenario {
 			heads.add(head);
 			
 			//Delay the spawn so they appear exactly 30 ticks apart from each other
-			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahMain.plugin, new Runnable() {
+			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
 				public void run() {
 					PacketHandler.sendEquipment(player, head.getStand().getId(), ItemSlot.HEAD, 
 							new ItemStack(Material.SKULL_ITEM, 1, (short) (new Random().nextInt(3))));
@@ -49,7 +50,7 @@ public class ScenarioHeads extends Scenario {
 		flashBlindness(); //Starts the blindness flashing
 		
 		//Mega task that manages all the events of this scenario
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
 			public void run () {
 				for (Spirit head: heads) {
 					head.remove(player);
@@ -71,7 +72,7 @@ public class ScenarioHeads extends Scenario {
 				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 60, -5));
 				
 				//delay the attaching the head to make sure the armorstand has had time to spawn
-				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahMain.plugin, new Runnable() {
+				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
 					public void run() {
 						player.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, SoundCategory.VOICE, 1f, 1f);
 						PacketHandler.sendEquipment(player, popUp.getId(), ItemSlot.HEAD, getSkull(popUpSkinURL));
@@ -79,7 +80,7 @@ public class ScenarioHeads extends Scenario {
 				}, 2);
 				
 				//Cleans and clears everything. Ends the scenario.
-				Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+				Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
 					public void run () {
 						PacketHandler.removeFakeMobs(player, new int[]{popUp.getId()});
 						remove();
@@ -106,7 +107,7 @@ public class ScenarioHeads extends Scenario {
 	//TODO I really hate the way I made this
 	private void flashBlindness() {
 		if (--interval > 3)
-			flashTask = Bukkit.getServer().getScheduler().runTaskLater(HookahMain.plugin, new Runnable() {
+			flashTask = Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
 				public void run () {
 					if (new Random().nextInt(2) == 0)
 						player.playSound(player.getLocation(), Sound.ENTITY_WITHER_AMBIENT, SoundCategory.VOICE, 1f, 1f);
@@ -115,7 +116,7 @@ public class ScenarioHeads extends Scenario {
 				}
 			}, interval);
 		else {
-			rapidFlashingTask = Bukkit.getServer().getScheduler().runTaskTimer(HookahMain.plugin, new Runnable() {
+			rapidFlashingTask = Bukkit.getServer().getScheduler().runTaskTimer(HookahPlugin.plugin, new Runnable() {
 				public void run () {
 					player.playSound(player.getLocation(), Sound.ENTITY_WITHER_AMBIENT, SoundCategory.VOICE, 1f, 1f);
 					toggleBlindness();

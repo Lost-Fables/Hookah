@@ -100,12 +100,10 @@ public class HookahCommandExecutor implements CommandExecutor {
 
 	private void listRecipes(CommandSender sender) {
 		for (Recipe recipe: Recipe.getRecipes()) {
-			String ingredients = "";
+			StringBuilder ingredients = new StringBuilder();
 			for (ItemStack ingredient: recipe.getIngredients()) {
-				ingredients += ingredient.getType().toString();
-				if (ingredient.getDurability() != 0)
-					ingredients += ":" + ingredient.getDurability();
-				ingredients += " ";
+				ingredients.append(ingredient.getType().toString());
+				ingredients.append(" ");
 			}
 
 			if (sender instanceof Player) {
@@ -122,20 +120,20 @@ public class HookahCommandExecutor implements CommandExecutor {
 	private void getDrug(CommandSender sender, String[] args) {
 		if (sender instanceof Player) {
 			if (args.length >= 2) {
-				String drugName = "";
+				StringBuilder drugName = new StringBuilder();
 				if (args.length > 2) {
 					for (int i = 1; i < args.length; i++) {
 						if (i == args.length - 1)
-							drugName += args[i];
+							drugName.append(args[i]);
 						else
-							drugName += args[i] + " ";
+							drugName.append(args[i]).append(" ");
 					}
 				} else
-					drugName = args[1];
+					drugName = new StringBuilder(args[1]);
 
 				boolean found = false;
 				for (Recipe recipe: Recipe.getRecipes()) {
-					if (drugName.equalsIgnoreCase(recipe.getName())) {
+					if (drugName.toString().equalsIgnoreCase(recipe.getName())) {
 						found = true;
 						((Player) sender).getInventory().addItem(recipe.getDrugItem());
 						break;

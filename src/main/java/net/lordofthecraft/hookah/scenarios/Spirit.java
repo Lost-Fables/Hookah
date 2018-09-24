@@ -1,13 +1,13 @@
 package net.lordofthecraft.hookah.scenarios;
 
-import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
-
+import com.comphenix.protocol.wrappers.WrappedParticle;
 import net.lordofthecraft.hookah.HookahPlugin;
 import net.lordofthecraft.hookah.PacketHandler;
-import net.minecraft.server.v1_12_R1.EntityArmorStand;
+import net.minecraft.server.v1_13_R2.EntityArmorStand;
+import net.minecraft.server.v1_13_R2.IChatBaseComponent.ChatSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
@@ -24,48 +24,46 @@ public class Spirit {
 	private EntityArmorStand stand; //An entity that follows the spirit to display it's name
 	private double t = 35.0;
 	
-	public void spawn(final Player player, Particle main, Particle secondary, int speed, String name) {
+	public void spawn(final Player player, WrappedParticle main, WrappedParticle secondary, int speed, String name) {
 		stand = initStand(player, name);
 		//Task that moves the spirit around the player.
-		mainTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				t = t + Math.PI/200;
-				final Location loc = player.getLocation();
-				double x, y, z;
-				double x1, y1, z1;
-				double x2, y2, z2;
-				double r = 0.5;
-				
-				x2 = sin(2*t);
-				y2 = 2*cos(t);
-				z2 = sin(3*t);
-				
-				t -= Math.PI/200;
-				
-				x1 = sin(2*t);
-				y1 = 2*cos(t);
-				z1 = sin(3*t);
-				
-				t += Math.PI/200;
-				
-				Vector dir = new Vector(x2-x1, y2-y1, z2-z1);
-				Location loc2 = new Location(player.getWorld(), 0, 0, 0).setDirection(dir.normalize());
-				loc2.setDirection(dir.normalize());
-				
-				for (double i = 0; i <= 2*Math.PI; i = i + Math.PI/8) {
-					x = 0.2*t;
-					y = r*sin(i)+2*sin(10*t)+2.8;
-					z = r*cos(i);
-					Vector v = new Vector(x, y, z);
-					v = rotateFunction(v, loc2);
-					loc.add(v.getX(), v.getY(), v.getZ());
-					moveStand(player, stand, loc);
-					if (main != null)
-						PacketHandler.sendFakeParticle(player, loc, main, 1);
-					if (i == 0 && secondary != null)
-						PacketHandler.sendFakeParticle(player, loc, secondary, 1);
-					loc.subtract(v.getX(), v.getY(), v.getZ());
-				}
+		mainTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, () -> {
+			t = t + Math.PI/200;
+			final Location loc = player.getLocation();
+			double x, y, z;
+			double x1, y1, z1;
+			double x2, y2, z2;
+			double r = 0.5;
+
+			x2 = sin(2*t);
+			y2 = 2*cos(t);
+			z2 = sin(3*t);
+
+			t -= Math.PI/200;
+
+			x1 = sin(2*t);
+			y1 = 2*cos(t);
+			z1 = sin(3*t);
+
+			t += Math.PI/200;
+
+			Vector dir = new Vector(x2-x1, y2-y1, z2-z1);
+			Location loc2 = new Location(player.getWorld(), 0, 0, 0).setDirection(dir.normalize());
+			loc2.setDirection(dir.normalize());
+
+			for (double i = 0; i <= 2*Math.PI; i = i + Math.PI/8) {
+				x = 0.2*t;
+				y = r*sin(i)+2*sin(10*t)+2.8;
+				z = r*cos(i);
+				Vector v = new Vector(x, y, z);
+				v = rotateFunction(v, loc2);
+				loc.add(v.getX(), v.getY(), v.getZ());
+				moveStand(player, stand, loc);
+				if (main != null)
+					PacketHandler.sendFakeParticle(player, loc, main, 1);
+				if (i == 0 && secondary != null)
+					PacketHandler.sendFakeParticle(player, loc, secondary, 1);
+				loc.subtract(v.getX(), v.getY(), v.getZ());
 			}
 		}, 0, speed);
 	}
@@ -84,7 +82,7 @@ public class Spirit {
 	private EntityArmorStand initStand(Player player, String name) {
 		EntityArmorStand spiritName = new EntityArmorStand(((CraftWorld) player.getWorld()).getHandle());
 		if (name != null) {
-			spiritName.setCustomName(name);
+			spiritName.setCustomName(ChatSerializer.a("{\"text\":\"" + name +"\"}")); //FIXME: Honestly this is retarded
 			spiritName.setCustomNameVisible(true);
 		}
 		spiritName.setLocation(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(), 0, 0);

@@ -2,16 +2,16 @@ package net.lordofthecraft.hookah.scenarios;
 
 import com.comphenix.packetwrapper.WrapperPlayServerMultiBlockChange;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
-import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 
+import com.comphenix.protocol.wrappers.WrappedParticle;
 import net.lordofthecraft.hookah.HookahPlugin;
 import net.lordofthecraft.hookah.PacketHandler;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_12_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_13_R2.CraftChunk;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -25,7 +25,7 @@ public class ScenarioSpiritKo extends Scenario{
 		super(player);
 	}
 
-	private List<Chunk> chunks = new ArrayList<Chunk>();
+	private List<Chunk> chunks = new ArrayList<>();
 	private Location centerLoc;
 	private int minY;
 	private int maxY;
@@ -44,16 +44,15 @@ public class ScenarioSpiritKo extends Scenario{
 		
 		spawnNether();
 		Spirit spiritKO = new Spirit();
-		spiritKO.spawn(player, Particle.SMOKE_LARGE, Particle.CLOUD, 2, ChatColor.GRAY + "Spirit KO");
+		spiritKO.spawn(player, WrappedParticle.create(Particle.SMOKE_LARGE, null), WrappedParticle.create(Particle.CLOUD, null), 2, ChatColor.GRAY +
+			"Spirit KO");
 		
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 2));
-				removeNether();
-				spiritKO.remove(player);
-				PacketHandler.toggleRedTint(player, false);
-				activeScenarios.remove(player.getUniqueId());
-			}
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, () -> {
+			player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 2));
+			removeNether();
+			spiritKO.remove(player);
+			PacketHandler.toggleRedTint(player, false);
+			activeScenarios.remove(player.getUniqueId());
 		}, duration);
 	}
 	
@@ -62,7 +61,7 @@ public class ScenarioSpiritKo extends Scenario{
 		chunks = getChunks(centerChunk); //Get a list of all the chunks in the radius (3x3 grid)
 		
 		//List of block change records for each chunk
-		List<List<MultiBlockChangeInfo>> records = new ArrayList<List<MultiBlockChangeInfo>>();
+		List<List<MultiBlockChangeInfo>> records = new ArrayList<>();
 		
 		//for each chunk
 		for (int i = 0; i < 9; i++) {
@@ -70,7 +69,7 @@ public class ScenarioSpiritKo extends Scenario{
 			World world = currentChunk.getWorld();
 			
 			//record of all changes in the chunk
-			List<MultiBlockChangeInfo> chunkData = new ArrayList<MultiBlockChangeInfo>();
+			List<MultiBlockChangeInfo> chunkData = new ArrayList<>();
 			
 			//Iterates on the Y axis (Vertical)
 			for (int y = minY; y < maxY; y++) {
@@ -111,20 +110,16 @@ public class ScenarioSpiritKo extends Scenario{
 		for (int i = 0; i < 9; i++) {
 			WrapperPlayServerMultiBlockChange packet = new WrapperPlayServerMultiBlockChange();
 			packet.setChunk(new ChunkCoordIntPair(chunks.get(i).getX(), chunks.get(i).getZ()));
-			packet.setRecords(records.get(i).toArray(new MultiBlockChangeInfo[records.get(i).size()]));
+			packet.setRecords(records.get(i).toArray(new MultiBlockChangeInfo[0]));
 			
 			//Delay packets to reduce lag
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
-                public void run() {
-                    packet.sendPacket(player);
-				}
-			}, i * 2);
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, () -> packet.sendPacket(player), i * 2);
 		}
 	}
 	
 	//Get all the chunks that will be affected by the scenario
 	private List<Chunk> getChunks(Chunk centerChunk) {
-		List<Chunk> chunks = new ArrayList<Chunk>();
+		List<Chunk> chunks = new ArrayList<>();
 		for (int x = 1; x >= -1; x--) {
 			for (int z = -1; z <= 1; z++) {
 				chunks.add(centerChunk.getWorld().getChunkAt(centerChunk.getX() + x, centerChunk.getZ() + z));

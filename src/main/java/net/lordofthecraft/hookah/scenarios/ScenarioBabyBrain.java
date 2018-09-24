@@ -1,5 +1,10 @@
 package net.lordofthecraft.hookah.scenarios;
 
+import net.lordofthecraft.arche.ArcheCore;
+import net.lordofthecraft.arche.interfaces.PersonaHandler;
+import net.lordofthecraft.hookah.HookahPlugin;
+import net.lordofthecraft.hookah.PacketHandler;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -7,13 +12,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
-import net.lordofthecraft.arche.ArcheCore;
-import net.lordofthecraft.arche.interfaces.PersonaHandler;
-import net.lordofthecraft.arche.persona.ArchePersonaHandler;
-import net.lordofthecraft.hookah.HookahPlugin;
-import net.lordofthecraft.hookah.PacketHandler;
-import net.md_5.bungee.api.ChatColor;
 
 public class ScenarioBabyBrain extends Scenario{
 
@@ -38,17 +36,9 @@ public class ScenarioBabyBrain extends Scenario{
 		player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 1800, 2));
 		PacketHandler.toggleRedTint(player, true);
 		
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimer(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				randomEvent();
-			}
-		}, 300, 300));
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimer(HookahPlugin.plugin, this::randomEvent, 300, 300));
 		
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				remove();
-			}
-		}, 1800));
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, () -> remove(), 1800));
 		
 		return true;
 	}
@@ -56,8 +46,7 @@ public class ScenarioBabyBrain extends Scenario{
 	public void remove() {
 		PacketHandler.toggleRedTint(player, false);
 		cleanTasks();
-		if (activeScenarios.containsKey(player.getUniqueId()))
-			activeScenarios.remove(player.getUniqueId());
+		activeScenarios.remove(player.getUniqueId());
 	}
 	
 	private void randomEvent() {
@@ -99,7 +88,7 @@ public class ScenarioBabyBrain extends Scenario{
 		sendMessageToNearbyPlayers(ChatColor.DARK_GREEN + getPersonaName() + "'s widen for a moment before they start vomitting all over " +
 				" the floor, a playful smile rested on their face, " + ChatColor.WHITE + "\"lorafum toletb licoc tspi pu ga ga... he he he\"", 20);
 		
-		player.getWorld().playSound(player.getLocation(), Sound.ENTITY_EVOCATION_ILLAGER_DEATH, 1f, 1f);
+		player.getWorld().playSound(player.getLocation(), Sound.ENTITY_VINDICATOR_DEATH, 1f, 1f);
 		
 		Location vomitLoc = player.getLocation().add(player.getLocation().getDirection().setY(0).normalize().multiply(1)).add(0, 1, 0);
 		player.getWorld().spawnParticle(Particle.SLIME, vomitLoc, 75, 0.3, 0.3, 0.1);

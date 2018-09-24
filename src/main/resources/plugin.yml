@@ -4,6 +4,7 @@ version: ${project.version}
 author: dsdevil
 depend: [CustomItem, ProtocolLib, ArcheCore, PacketWrapper]
 soft-depend: [HawkEye]
+api-version: 1.13
 
 commands:
     hookah:

@@ -27,7 +27,7 @@ public class Scenario {
 	private Scenarios type;
 	
 	
-	public static enum Scenarios {
+	public enum Scenarios {
 		BROTHER,
 		DRAGON,
 		DIMENSION,
@@ -108,7 +108,7 @@ public class Scenario {
 	
 	//Retrieves a player head according to a texture url
 	public ItemStack getSkull(String url) {
-	    ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
+	    ItemStack head = new ItemStack(Material.PLAYER_HEAD,1);
 	    if(url.isEmpty())return head;
 	   
 	    SkullMeta headMeta = (SkullMeta) head.getItemMeta();

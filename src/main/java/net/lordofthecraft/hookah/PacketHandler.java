@@ -1,22 +1,29 @@
 package net.lordofthecraft.hookah;
 
-import com.comphenix.packetwrapper.*;
+import com.comphenix.packetwrapper.WrapperPlayServerCamera;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityLook;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityTeleport;
+import com.comphenix.packetwrapper.WrapperPlayServerMultiBlockChange;
+import com.comphenix.packetwrapper.WrapperPlayServerSpawnEntityLiving;
+import com.comphenix.packetwrapper.WrapperPlayServerWorldBorder;
+import com.comphenix.packetwrapper.WrapperPlayServerWorldParticles;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
-import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 import com.comphenix.protocol.wrappers.EnumWrappers.WorldBorderAction;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
-import net.minecraft.server.v1_12_R1.EntityLiving;
-import net.minecraft.server.v1_12_R1.PacketPlayOutMapChunk;
-import net.minecraft.server.v1_12_R1.PacketPlayOutSpawnEntityLiving;
+import com.comphenix.protocol.wrappers.WrappedParticle;
+import java.util.List;
+import net.minecraft.server.v1_13_R2.EntityLiving;
+import net.minecraft.server.v1_13_R2.PacketPlayOutMapChunk;
+import net.minecraft.server.v1_13_R2.PacketPlayOutSpawnEntityLiving;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.List;
 
 /*
  * Class containing all the different methods we use to
@@ -76,9 +83,8 @@ public abstract class PacketHandler {
 		packet.sendPacket(player);
 	}
 	
-	public static void sendFakeParticle(Player player, Location loc, EnumWrappers.Particle particleType, int amount) {
+	public static void sendFakeParticle(Player player, Location loc, WrappedParticle particleType, int amount) {
 		WrapperPlayServerWorldParticles packet = new WrapperPlayServerWorldParticles();
-		packet.setData(null);
 		packet.setLongDistance(false);
 		packet.setNumberOfParticles(amount);
 		packet.setOffsetX(0);
@@ -99,14 +105,14 @@ public abstract class PacketHandler {
 	}
 	
 	//NMS :(
-    public static void sendNMSChunkPacket(Player player, net.minecraft.server.v1_12_R1.Chunk chunk) {
+    public static void sendNMSChunkPacket(Player player, net.minecraft.server.v1_13_R2.Chunk chunk) {
 		((CraftPlayer)player).getHandle().playerConnection.sendPacket(new PacketPlayOutMapChunk(chunk, 0xffff));
 	}
 	
 	public static void sendChunkData(Player player, Chunk chunk, List<MultiBlockChangeInfo> chunkData) {
 		WrapperPlayServerMultiBlockChange packet = new WrapperPlayServerMultiBlockChange();
 		packet.setChunk(new ChunkCoordIntPair(chunk.getX(), chunk.getZ()));
-		packet.setRecords(chunkData.toArray(new MultiBlockChangeInfo[chunkData.size()]));
+		packet.setRecords(chunkData.toArray(new MultiBlockChangeInfo[0]));
 		packet.sendPacket(player);
 	}
 	

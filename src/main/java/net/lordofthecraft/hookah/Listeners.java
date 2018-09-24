@@ -113,7 +113,7 @@ public class Listeners implements Listener{
         Inventory inventory = Hookah.getHookah(new WeakLocation(block.getLocation())).getInventory();
         
         //Close all open inventories
-        for (HumanEntity viewer: inventory.getViewers().toArray(new HumanEntity[inventory.getViewers().size()])) {
+        for (HumanEntity viewer: inventory.getViewers().toArray(new HumanEntity[0])) {
             viewer.closeInventory();
         }
         
@@ -188,11 +188,7 @@ public class Listeners implements Listener{
 	// 1 second cooldown between hits from the Hoo-Kah
 	private void startCooldown(final Player player) {
 		cooldowns.add(player.getUniqueId());
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				cooldowns.remove(player.getUniqueId());
-			}
-		}, 20);
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, () -> cooldowns.remove(player.getUniqueId()), 20);
 	}
 	
 	@EventHandler //Remove high when player drinks milk
@@ -218,6 +214,6 @@ public class Listeners implements Listener{
 	}
 
     static boolean isHookah(ItemStack is) {
-        return is.getType() == Material.BREWING_STAND_ITEM && CustomTag.hasCustomTag(is, "hookah");
+        return is.getType() == Material.BREWING_STAND && CustomTag.hasCustomTag(is, "hookah");
     }
 }

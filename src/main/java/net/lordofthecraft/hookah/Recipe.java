@@ -44,10 +44,7 @@ public class Recipe {
 	public List<String> getIngredientsToString() {
 		List<String> ingredients = new ArrayList<>();
 		for (ItemStack ingredient: getIngredients()) {
-			if (ingredient.getDurability() != 0)
-				ingredients.add(ingredient.getType().toString() + ":" + ingredient.getDurability());
-			else
-				ingredients.add(ingredient.getType().toString());
+			ingredients.add(ingredient.getType().toString());
 		}
 		return ingredients;
 	}

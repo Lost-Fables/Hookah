@@ -74,12 +74,10 @@ public class HookahPlugin extends JavaPlugin {
         for (Recipe recipe : Recipe.getRecipes()) {
             String id = String.valueOf(recipe.getId());
             this.getConfig().set("recipes." + id + ".ingredients", recipe.getIngredientsToString());
-            this.getConfig().set("recipes." + id + ".drug.itemtype", recipe.getDrugItem().getType().toString() +
-                    (recipe.getDrugItem().getDurability() != 0 ? ":" + recipe.getDrugItem().getDurability() : ""));
+            this.getConfig().set("recipes." + id + ".drug.itemtype", recipe.getDrugItem().getType().toString());
             this.getConfig().set("recipes." + id + ".drug.name", recipe.getName());
             this.getConfig().set("recipes." + id + ".drug.lore", recipe.getLore());
-            this.getConfig().set("recipes." + id + ".drug.chargesperdrug",
-                    recipe.getChargesPerDrug());
+            this.getConfig().set("recipes." + id + ".drug.chargesperdrug", recipe.getChargesPerDrug());
             this.getConfig().set("recipes." + id + ".drug.defaulthigh", recipe.getDefaultHigh().toString());
             this.getConfig().set("recipes." + id + ".drug.odds", recipe.getScenarioOdds());
             this.getConfig().set("recipes." + id + ".drug.scenarios", recipe.getScenariosToString());
@@ -228,11 +226,7 @@ public class HookahPlugin extends JavaPlugin {
     private List<ItemStack> parseIngredients(List<String> data) {
         List<ItemStack> ingredients = new ArrayList<>();
         for (String ingredient : data) {
-            String[] components = ingredient.split(":");
-            if (components.length > 1)
-                ingredients.add(new ItemStack(Material.matchMaterial(components[0]), 1, Short.parseShort(components[1])));
-            else
-                ingredients.add(new ItemStack(Material.matchMaterial(components[0]), 1));
+            ingredients.add(new ItemStack(Material.matchMaterial(ingredient), 1));
         }
         return ingredients;
     }
@@ -242,7 +236,7 @@ public class HookahPlugin extends JavaPlugin {
         ItemStack drugItem;
         String[] components = data.split(":");
         if (components.length > 1)
-            drugItem = new ItemStack(Material.matchMaterial(components[0]), 1, Short.parseShort(components[1]));
+            drugItem = new ItemStack(Material.matchMaterial(components[0]), 1);
         else
             drugItem = new ItemStack(Material.matchMaterial(components[0]), 1);
         return drugItem;

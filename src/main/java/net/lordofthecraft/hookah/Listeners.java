@@ -2,12 +2,18 @@ package net.lordofthecraft.hookah;
 
 
 import io.github.archemedes.customitem.CustomTag;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import me.botsko.prism.actionlibs.ActionFactory;
+import me.botsko.prism.actionlibs.RecordingQueue;
 import net.lordofthecraft.hookah.scenarios.Scenario;
-import uk.co.oliwali.HawkEye.DataType;
-import uk.co.oliwali.HawkEye.entry.BlockEntry;
-import uk.co.oliwali.HawkEye.util.HawkEyeAPI;
-
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.HumanEntity;
@@ -26,17 +32,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 public class Listeners implements Listener{
 	
 	private List<UUID> cooldowns = new ArrayList<>();
-	private boolean hawkeyeEnabled;
+	private boolean prismEnabled;
 	
 	public Listeners (HookahPlugin plugin) {
-		hawkeyeEnabled = (plugin.getServer().getPluginManager().getPlugin("HawkEye") != null);
+		prismEnabled = (plugin.getServer().getPluginManager().getPlugin("Prism") != null);
 	}
 
 	@EventHandler(ignoreCancelled = false, priority = EventPriority.HIGH)
@@ -64,47 +66,22 @@ public class Listeners implements Listener{
 		}
 	}
 
-	/*@EventHandler
-	public void onPlayerInteract(PlayerInteractEvent e) {
-		if (!(e.getAction() == Action.RIGHT_CLICK_BLOCK)) return;
-		if (!(e.getClickedBlock().getType() == Material.BREWING_STAND)) return;
-		if (!(Hookah.getLocations().contains(new WeakLocation(e.getClickedBlock().getLocation())))) return;
-		
-		e.setCancelled(true);
-		
-		Hookah currentHookah = Hookah.getHookah(new WeakLocation(e.getClickedBlock().getLocation()));
-		if (!e.getPlayer().isSneaking()) //Open hookah inventory
-			e.getPlayer().openInventory(currentHookah.getInventory());
-		else { //Take a hit
-			if (currentHookah.getCharges() != 0 && !cooldowns.contains(e.getPlayer().getUniqueId())) {
-				currentHookah.useCharge(e.getPlayer());
-				startCooldown(e.getPlayer());
-			}
-		}
-	}*/
-	
 	@EventHandler //Keeps track of hookah locations
 	public void onBlockPlace(BlockPlaceEvent e) {
         if (!isHookah(e.getItemInHand())) return;
 		
 		Hookah.addHookah(new WeakLocation(e.getBlock().getLocation()), new Hookah());
 	}
-	
-	/*@EventHandler //Prevents from placing drug items
-	public void onDrugPlace(BlockPlaceEvent e) {
-        if (!isHookah(e.getItemInHand())) return;
-		e.setCancelled(true);
-	}*/
-	
+
     @EventHandler (ignoreCancelled = true, priority = EventPriority.HIGHEST) //Keeps track of hookah locations
     public void onBlockBreak(BlockBreakEvent e) {
         if (!Hookah.getLocations().contains(new WeakLocation(e.getBlock().getLocation()))) return;
         e.setCancelled(true);
         Block block = e.getBlock();
         
-        if (hawkeyeEnabled) 
-        	HawkEyeAPI.addEntry(new BlockEntry(e.getPlayer(), DataType.BLOCK_BREAK, block));
-        
+        if (prismEnabled)
+			RecordingQueue.addToQueue(ActionFactory.createBlock("block-break", block, e.getPlayer()));
+
         block.setType(Material.AIR);
         
         if (e.getPlayer().getGameMode() != GameMode.CREATIVE)

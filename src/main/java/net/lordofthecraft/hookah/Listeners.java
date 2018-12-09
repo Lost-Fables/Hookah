@@ -5,9 +5,9 @@ import io.github.archemedes.customitem.CustomTag;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import me.botsko.prism.actionlibs.ActionFactory;
-import me.botsko.prism.actionlibs.RecordingQueue;
 import net.lordofthecraft.hookah.scenarios.Scenario;
+import net.lordofthecraft.omniscience.api.data.BlockTransaction;
+import net.lordofthecraft.omniscience.api.entry.OEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -15,6 +15,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -35,10 +36,10 @@ import org.bukkit.inventory.ItemStack;
 public class Listeners implements Listener{
 	
 	private List<UUID> cooldowns = new ArrayList<>();
-	private boolean prismEnabled;
+	private boolean loggingEnabled;
 	
 	public Listeners (HookahPlugin plugin) {
-		prismEnabled = (plugin.getServer().getPluginManager().getPlugin("Prism") != null);
+		loggingEnabled = (plugin.getServer().getPluginManager().getPlugin("Omniscience") != null);
 	}
 
 	@EventHandler(ignoreCancelled = false, priority = EventPriority.HIGH)
@@ -78,9 +79,13 @@ public class Listeners implements Listener{
         if (!Hookah.getLocations().contains(new WeakLocation(e.getBlock().getLocation()))) return;
         e.setCancelled(true);
         Block block = e.getBlock();
-        
-        if (prismEnabled)
-			RecordingQueue.addToQueue(ActionFactory.createBlock("block-break", block, e.getPlayer()));
+
+		if (loggingEnabled) {
+			BlockState air = e.getBlock().getState();
+			air.setType(Material.AIR);
+			OEntry.create().source(e.getPlayer())
+				  .brokeBlock(BlockTransaction.from(e.getBlock().getLocation(), e.getBlock().getState(), air));
+		}
 
         block.setType(Material.AIR);
         

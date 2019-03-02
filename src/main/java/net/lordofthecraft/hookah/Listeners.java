@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import net.lordofthecraft.hookah.scenarios.Scenario;
-import net.lordofthecraft.omniscience.api.data.BlockTransaction;
+import net.lordofthecraft.omniscience.api.data.LocationTransaction;
 import net.lordofthecraft.omniscience.api.entry.OEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -83,8 +83,7 @@ public class Listeners implements Listener{
 		if (loggingEnabled) {
 			BlockState air = e.getBlock().getState();
 			air.setType(Material.AIR);
-			OEntry.create().source(e.getPlayer())
-				  .brokeBlock(BlockTransaction.from(e.getBlock().getLocation(), e.getBlock().getState(), air));
+			OEntry.create().source(e.getPlayer()).brokeBlock(new LocationTransaction<>(e.getBlock().getLocation(), e.getBlock().getState(), air)).save();
 		}
 
         block.setType(Material.AIR);

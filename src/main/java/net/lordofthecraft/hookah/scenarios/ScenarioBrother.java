@@ -1,16 +1,15 @@
 package net.lordofthecraft.hookah.scenarios;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
-import org.bukkit.entity.Player;
-
-import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
-
+import com.comphenix.protocol.wrappers.WrappedParticle;
 import net.lordofthecraft.hookah.HookahPlugin;
 import net.lordofthecraft.hookah.PacketHandler;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
+import org.bukkit.entity.Player;
 
 public class ScenarioBrother extends Scenario {
 	
@@ -40,24 +39,19 @@ public class ScenarioBrother extends Scenario {
 		PacketHandler.toggleRedTint(player, true);
 		
 		brother = new Spirit();
-		brother.spawn(player, Particle.CLOUD, Particle.SLIME, 1, ChatColor.AQUA + "Kindred Spirit");
+		brother.spawn(player, WrappedParticle.create(Particle.CLOUD, null), WrappedParticle.create(Particle.SLIME, null), 1, ChatColor.AQUA +
+			"Kindred Spirit");
 		player.playSound(player.getLocation(), Sound.ENTITY_CAT_PURR, SoundCategory.VOICE, 1f, 1f);
 		
 		//Sends a random emote to the player every so often
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable(){
-			public void run() {
-				randomPurrSound();
-				if (random.nextInt(5) == 0) 
-					player.sendMessage(emotes[random.nextInt(emotes.length)]);
-			}
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, () -> {
+			randomPurrSound();
+			if (random.nextInt(5) == 0)
+				player.sendMessage(emotes[random.nextInt(emotes.length)]);
 		}, 200, 200));
 		
 		//Task that ends the scenario
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable(){
-			public void run() {
-				remove();
-			}
-		}, 3600));
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, () -> remove(), 3600));
 		
 		return true;
 	}
@@ -67,8 +61,7 @@ public class ScenarioBrother extends Scenario {
 		PacketHandler.toggleRedTint(player, false);
 		brother.remove(player);
 		cleanTasks();
-		if (activeScenarios.containsKey(player.getUniqueId()))
-			activeScenarios.remove(player.getUniqueId());
+		activeScenarios.remove(player.getUniqueId());
 	}
 	
 	private void randomPurrSound() {

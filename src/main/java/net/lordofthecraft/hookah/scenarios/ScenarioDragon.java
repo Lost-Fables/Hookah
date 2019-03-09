@@ -2,12 +2,12 @@ package net.lordofthecraft.hookah.scenarios;
 
 import net.lordofthecraft.hookah.HookahPlugin;
 import net.lordofthecraft.hookah.PacketHandler;
-import net.minecraft.server.v1_12_R1.EntityEnderDragon;
-import net.minecraft.server.v1_12_R1.EntityZombie;
+import net.minecraft.server.v1_13_R2.EntityEnderDragon;
+import net.minecraft.server.v1_13_R2.EntityZombie;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -41,42 +41,22 @@ public class ScenarioDragon extends Scenario{
 		dragon.setSilent(true);
 		dragon.setLocation(centerLoc.getX(), centerLoc.getY(), centerLoc.getZ(), 0, 0);
 		PacketHandler.spawnNMSLivingEntity(player, dragon);
-		player.playSound(player.getLocation().subtract(0, 5, 0), Sound.ENTITY_ENDERDRAGON_GROWL, 1f, 1f);
+		player.playSound(player.getLocation().subtract(0, 5, 0), Sound.ENTITY_ENDER_DRAGON_GROWL, 1f, 1f);
 		
 		//Delay moving the camera for artistic effect
-		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				PacketHandler.moveCamera(player, camera.getId());
-			}
-		}, 60);
+		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, () -> PacketHandler.moveCamera(player, camera.getId()), 60);
 		
 		//Plays dragon sounds
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				playRandomAmbientSound();
-			}
-		}, 60, 60));
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, () -> playRandomAmbientSound(), 60, 60));
 		
 		//Plays the elytra flight sound during the scenario
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, 0.5f, 1f);
-			}
-		}, 60, 180));
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, () -> player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, 0.5f, 1f), 60, 180));
 		
 		//Task that makes the dragon moves around
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				moveCameraAndDragon();
-			}
-		}, 0, 1));
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, () -> moveCameraAndDragon(), 0, 1));
 		
 		//Task that ends the scenario
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				remove();
-			}
-		}, 600));
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, () -> remove(), 600));
 		
 		return true;
 	}
@@ -87,12 +67,11 @@ public class ScenarioDragon extends Scenario{
 		PacketHandler.moveCamera(player, player.getEntityId());
 		PacketHandler.toggleRedTint(player, false);
 		player.stopSound(Sound.ITEM_ELYTRA_FLYING);
-		player.stopSound(Sound.ENTITY_ENDERDRAGON_GROWL);
-		player.stopSound(Sound.ENTITY_ENDERDRAGON_FLAP);
+		player.stopSound(Sound.ENTITY_ENDER_DRAGON_GROWL);
+		player.stopSound(Sound.ENTITY_ENDER_DRAGON_FLAP);
 		player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
 		cleanTasks();
-		if (activeScenarios.containsKey(player.getUniqueId()))
-			activeScenarios.remove(player.getUniqueId());
+		activeScenarios.remove(player.getUniqueId());
 	}
 	
 	private double calculateHighestY() {
@@ -124,11 +103,7 @@ public class ScenarioDragon extends Scenario{
 		
 		Location copyloc = loc.clone();
 		//keeps the dragon 1 tick behind the camera to simulate dragon riding
-		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				PacketHandler.teleportFakeEntity(player, dragon.getId(), copyloc);
-			}
-		}, 1);
+		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, () -> PacketHandler.teleportFakeEntity(player, dragon.getId(), copyloc), 1);
 		
 		loc.setY(loc.getY() + 2.5);
 		loc.setYaw(loc.getYaw() + 180);
@@ -138,18 +113,14 @@ public class ScenarioDragon extends Scenario{
 	
 	private void playRandomAmbientSound() {
 		if (random.nextInt(6) == 0)
-			player.playSound(player.getLocation(), Sound.ENTITY_ENDERDRAGON_GROWL, 1f, 1f);
+			player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1f, 1f);
 		else if (random.nextInt() > 1)
 			playWingsFlappingSound();			
 	}
 	
 	private void playWingsFlappingSound() {
 		for (int i = 0; i < 3; i++) {
-			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
-				public void run() {
-					player.playSound(player.getLocation(), Sound.ENTITY_ENDERDRAGON_FLAP, 1f, 1f);
-				}
-			}, i * 10);
+			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, () -> player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f), i * 10);
 		}
 	}
 }

@@ -28,9 +28,8 @@ public class WeakLocation {
 	}
 	
 	public boolean isLocation(Location loc) {
-		if (loc.getBlockX() != x || loc.getBlockY() != y || loc.getBlockZ() != z ||
-				!loc.getWorld().getName().equals(world)) return false;
-		return true;
+		return loc.getBlockX() == x && loc.getBlockY() == y && loc.getBlockZ() == z &&
+			loc.getWorld().getName().equals(world);
 	}
 	
 	public Location convertToLocation() {
@@ -48,7 +47,7 @@ public class WeakLocation {
     public boolean equals(Object object) {
         boolean sameSame = false;
 
-        if (object != null && object instanceof WeakLocation) {
+        if (object instanceof WeakLocation) {
         	WeakLocation weakLoc = (WeakLocation) object;
             sameSame = (this.world.equals(weakLoc.world) &&
             			this.x == weakLoc.x &&

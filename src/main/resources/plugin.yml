@@ -3,7 +3,8 @@ main: net.lordofthecraft.hookah.HookahPlugin
 version: ${project.version}
 author: dsdevil
 depend: [CustomItem, ProtocolLib, ArcheCore, PacketWrapper]
-soft-depend: [HawkEye]
+soft-depend: [Prism]
+api-version: 1.13
 
 commands:
     hookah:

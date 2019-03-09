@@ -118,7 +118,7 @@ public class Hookah {
 			meta.setDisplayName(ChatColor.DARK_AQUA + "Current Drug: " + ChatColor.WHITE + "None");
 		else
 			meta.setDisplayName(ChatColor.DARK_AQUA + "Current Drug: " + ChatColor.WHITE + currentDrug.getName());
-		meta.setLore(Arrays.asList(ChatColor.DARK_AQUA + "Charges Left: " + ChatColor.WHITE + String.valueOf(charges)));
+		meta.setLore(Collections.singletonList(ChatColor.DARK_AQUA + "Charges Left: " + ChatColor.WHITE + String.valueOf(charges)));
 		infoPaper.setItemMeta(meta);
 		
 		inventory.setItem(31, infoPaper);
@@ -141,8 +141,7 @@ public class Hookah {
 				if (inventory.getItem(slot) == null || inventory.getItem(slot).getItemMeta() == null) continue;
 				
 				for (ItemStack ingredient: recipeChecklist.keySet()) {
-					if (inventory.getItem(slot).getType() == ingredient.getType()
-							&& inventory.getItem(slot).getDurability() == ingredient.getDurability()) {
+					if (inventory.getItem(slot).getType() == ingredient.getType()) {
 						recipeChecklist.put(ingredient, true);
 						ingredientAmounts.put(ingredient, inventory.getItem(slot).getAmount());
 						recipeFail = false;
@@ -213,7 +212,7 @@ public class Hookah {
 	 * @return
 	 */
 	private boolean isSameIngredient(ItemStack i1, ItemStack i2) {
-		return (i1.getType() == i2.getType() && i1.getDurability() == i2.getDurability());
+		return i1.getType() == i2.getType();
 	}
 	
 	
@@ -246,13 +245,11 @@ public class Hookah {
 		inventory.setItem(17, interfaceItems.get(5));
 		inventory.setItem(25, interfaceItems.get(5));
 		
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				inventory.setItem(7, interfaceItems.get(4));
-				inventory.setItem(15, interfaceItems.get(4));
-				inventory.setItem(17, interfaceItems.get(4));
-				inventory.setItem(25, interfaceItems.get(4));
-			}
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, () -> {
+			inventory.setItem(7, interfaceItems.get(4));
+			inventory.setItem(15, interfaceItems.get(4));
+			inventory.setItem(17, interfaceItems.get(4));
+			inventory.setItem(25, interfaceItems.get(4));
 		}, 20);
 	}	
 	
@@ -283,7 +280,7 @@ public class Hookah {
 	}
 	
 	public static ItemStack generateHookah() {
-		ItemStack hookah = new ItemStack(Material.BREWING_STAND_ITEM, 1);
+		ItemStack hookah = new ItemStack(Material.BREWING_STAND, 1);
 		ItemMeta meta = hookah.getItemMeta();
 		meta.setDisplayName("Hoo-Kah");
 		meta.setLore(Arrays.asList(ChatColor.GRAY + "A simple device used to produce and consume", 
@@ -332,7 +329,7 @@ public class Hookah {
 	}
 	
 	private static List<ItemStack> generateInterfaceItems() {
-		List<ItemStack> interfaceItems = new ArrayList<ItemStack>();
+		List<ItemStack> interfaceItems = new ArrayList<>();
 		
 		ItemStack combineButton = new ItemStack(Material.ENDER_PEARL, 1);
 		ItemMeta meta = combineButton.getItemMeta();
@@ -342,7 +339,7 @@ public class Hookah {
 		ItemStack infoPaper = new ItemStack(Material.PAPER, 1);
 		meta = infoPaper.getItemMeta();
 		meta.setDisplayName((ChatColor.DARK_AQUA + "Current Drug: " + ChatColor.WHITE + "None"));
-		meta.setLore(Arrays.asList(ChatColor.DARK_AQUA + "Charges Left: " + ChatColor.WHITE + "0"));
+		meta.setLore(Collections.singletonList(ChatColor.DARK_AQUA + "Charges Left: " + ChatColor.WHITE + "0"));
 		infoPaper.setItemMeta(meta);
 		
 		ItemStack light = new ItemStack(Material.BLAZE_POWDER, 1);
@@ -350,16 +347,16 @@ public class Hookah {
 		meta.setDisplayName(ChatColor.RED + "Light Drug");
 		light.setItemMeta(meta);
 
-		ItemStack blackGlass = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
+		ItemStack blackGlass = new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1);
 		meta = blackGlass.getItemMeta();
 		meta.setDisplayName(" ");
 		blackGlass.setItemMeta(meta);
 		
 		ItemStack greenGlass = blackGlass.clone();
-		greenGlass.setDurability((short) 13);
+		greenGlass.setType(Material.GREEN_STAINED_GLASS_PANE);
 		
 		ItemStack redGlass = blackGlass.clone();
-		redGlass.setDurability((short) 14);
+		redGlass.setType(Material.RED_STAINED_GLASS_PANE);
 		
 		interfaceItems.add(combineButton);
 		interfaceItems.add(infoPaper);

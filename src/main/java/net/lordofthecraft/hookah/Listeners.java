@@ -2,13 +2,20 @@ package net.lordofthecraft.hookah;
 
 
 import io.github.archemedes.customitem.CustomTag;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import net.lordofthecraft.hookah.scenarios.Scenario;
-import uk.co.oliwali.HawkEye.DataType;
-import uk.co.oliwali.HawkEye.entry.BlockEntry;
-import uk.co.oliwali.HawkEye.util.HawkEyeAPI;
-
-import org.bukkit.*;
+import net.lordofthecraft.omniscience.api.data.LocationTransaction;
+import net.lordofthecraft.omniscience.api.entry.OEntry;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -26,17 +33,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 public class Listeners implements Listener{
 	
 	private List<UUID> cooldowns = new ArrayList<>();
-	private boolean hawkeyeEnabled;
+	private boolean loggingEnabled;
 	
 	public Listeners (HookahPlugin plugin) {
-		hawkeyeEnabled = (plugin.getServer().getPluginManager().getPlugin("HawkEye") != null);
+		loggingEnabled = (plugin.getServer().getPluginManager().getPlugin("Omniscience") != null);
 	}
 
 	@EventHandler(ignoreCancelled = false, priority = EventPriority.HIGH)
@@ -64,47 +67,25 @@ public class Listeners implements Listener{
 		}
 	}
 
-	/*@EventHandler
-	public void onPlayerInteract(PlayerInteractEvent e) {
-		if (!(e.getAction() == Action.RIGHT_CLICK_BLOCK)) return;
-		if (!(e.getClickedBlock().getType() == Material.BREWING_STAND)) return;
-		if (!(Hookah.getLocations().contains(new WeakLocation(e.getClickedBlock().getLocation())))) return;
-		
-		e.setCancelled(true);
-		
-		Hookah currentHookah = Hookah.getHookah(new WeakLocation(e.getClickedBlock().getLocation()));
-		if (!e.getPlayer().isSneaking()) //Open hookah inventory
-			e.getPlayer().openInventory(currentHookah.getInventory());
-		else { //Take a hit
-			if (currentHookah.getCharges() != 0 && !cooldowns.contains(e.getPlayer().getUniqueId())) {
-				currentHookah.useCharge(e.getPlayer());
-				startCooldown(e.getPlayer());
-			}
-		}
-	}*/
-	
 	@EventHandler //Keeps track of hookah locations
 	public void onBlockPlace(BlockPlaceEvent e) {
         if (!isHookah(e.getItemInHand())) return;
 		
 		Hookah.addHookah(new WeakLocation(e.getBlock().getLocation()), new Hookah());
 	}
-	
-	/*@EventHandler //Prevents from placing drug items
-	public void onDrugPlace(BlockPlaceEvent e) {
-        if (!isHookah(e.getItemInHand())) return;
-		e.setCancelled(true);
-	}*/
-	
+
     @EventHandler (ignoreCancelled = true, priority = EventPriority.HIGHEST) //Keeps track of hookah locations
     public void onBlockBreak(BlockBreakEvent e) {
         if (!Hookah.getLocations().contains(new WeakLocation(e.getBlock().getLocation()))) return;
         e.setCancelled(true);
         Block block = e.getBlock();
-        
-        if (hawkeyeEnabled) 
-        	HawkEyeAPI.addEntry(new BlockEntry(e.getPlayer(), DataType.BLOCK_BREAK, block));
-        
+
+		if (loggingEnabled) {
+			BlockState air = e.getBlock().getState();
+			air.setType(Material.AIR);
+			OEntry.create().source(e.getPlayer()).brokeBlock(new LocationTransaction<>(e.getBlock().getLocation(), e.getBlock().getState(), air)).save();
+		}
+
         block.setType(Material.AIR);
         
         if (e.getPlayer().getGameMode() != GameMode.CREATIVE)
@@ -113,7 +94,7 @@ public class Listeners implements Listener{
         Inventory inventory = Hookah.getHookah(new WeakLocation(block.getLocation())).getInventory();
         
         //Close all open inventories
-        for (HumanEntity viewer: inventory.getViewers().toArray(new HumanEntity[inventory.getViewers().size()])) {
+        for (HumanEntity viewer: inventory.getViewers().toArray(new HumanEntity[0])) {
             viewer.closeInventory();
         }
         
@@ -188,11 +169,7 @@ public class Listeners implements Listener{
 	// 1 second cooldown between hits from the Hoo-Kah
 	private void startCooldown(final Player player) {
 		cooldowns.add(player.getUniqueId());
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				cooldowns.remove(player.getUniqueId());
-			}
-		}, 20);
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, () -> cooldowns.remove(player.getUniqueId()), 20);
 	}
 	
 	@EventHandler //Remove high when player drinks milk
@@ -218,6 +195,6 @@ public class Listeners implements Listener{
 	}
 
     static boolean isHookah(ItemStack is) {
-        return is.getType() == Material.BREWING_STAND_ITEM && CustomTag.hasCustomTag(is, "hookah");
+        return is.getType() == Material.BREWING_STAND && CustomTag.hasCustomTag(is, "hookah");
     }
 }

@@ -4,11 +4,11 @@ import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 
 import net.lordofthecraft.hookah.HookahPlugin;
 import net.lordofthecraft.hookah.PacketHandler;
-import net.minecraft.server.v1_12_R1.EntityArmorStand;
+import net.minecraft.server.v1_13_R2.EntityArmorStand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -37,32 +37,26 @@ public class ScenarioEyes extends Scenario{
 		
 		//Spawns eyeballs every 5 seconds over 50 seconds
 		for (int i = 0; i < 30; i++) {	
-			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
-				public void run() {
-					EyeBall eyeball = new EyeBall();
-					eyeballs.add(eyeball);
-					eyeball.spawn();
-					PacketHandler.sendEquipment(player, eyeball.getId(), ItemSlot.HEAD, getSkull(textureURLs[random.nextInt(textureURLs.length)]));
-				}
+			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, () -> {
+				EyeBall eyeball = new EyeBall();
+				eyeballs.add(eyeball);
+				eyeball.spawn();
+				PacketHandler.sendEquipment(player, eyeball.getId(), ItemSlot.HEAD, getSkull(textureURLs[random.nextInt(textureURLs.length)]));
 			}, i * 40);
 		}
 		
-		BukkitTask soundTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				if (random.nextInt(3) == 0)
-					player.playSound(player.getLocation(), Sound.ENTITY_WITCH_AMBIENT, 1f, 1f);
-			}
+		BukkitTask soundTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, () -> {
+			if (random.nextInt(3) == 0)
+				player.playSound(player.getLocation(), Sound.ENTITY_WITCH_AMBIENT, 1f, 1f);
 		}, 0, 20);
 		
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				for (EyeBall eyeball: eyeballs) {
-					eyeball.remove();
-				}
-				soundTask.cancel();
-				player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
-				activeScenarios.remove(player.getUniqueId());
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(HookahPlugin.plugin, () -> {
+			for (EyeBall eyeball: eyeballs) {
+				eyeball.remove();
 			}
+			soundTask.cancel();
+			player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
+			activeScenarios.remove(player.getUniqueId());
 		}, 1200);
 		
 		return true;
@@ -89,11 +83,7 @@ public class ScenarioEyes extends Scenario{
 		private void spawn() {
 			//PacketHandler.teleportFakeEntity(player, stand.getId(), randomLocationAroundPlayer());
 			//Stares at the player
-			lookTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
-				public void run() {
-					lookAtPlayer();
-				}
-			}, 0, 1);
+			lookTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, () -> lookAtPlayer(), 0, 1);
 		}
 		
 		private void lookAtPlayer() {

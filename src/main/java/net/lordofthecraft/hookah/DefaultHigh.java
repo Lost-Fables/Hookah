@@ -95,22 +95,16 @@ public class DefaultHigh implements Listener{
 			break;
 		}
 		
-		return Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				activeHighs.get(player.getUniqueId()).nauseaTask.cancel();
-				activeHighs.remove(player.getUniqueId());
-				PacketHandler.toggleRedTint(player, false);
-				player.removePotionEffect(PotionEffectType.CONFUSION);
-			}
+		return Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, () -> {
+			activeHighs.get(player.getUniqueId()).nauseaTask.cancel();
+			activeHighs.remove(player.getUniqueId());
+			PacketHandler.toggleRedTint(player, false);
+			player.removePotionEffect(PotionEffectType.CONFUSION);
 		}, time);
 	}
 	
 	private BukkitTask startNauseaTask(Player player) {
-		return Bukkit.getServer().getScheduler().runTaskTimer(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-					player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 300, 4), true);
-			}
-		}, 0, 290);	
+		return Bukkit.getServer().getScheduler().runTaskTimer(HookahPlugin.plugin, () -> player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 300, 4), true), 0, 290);
 	}
 	
 	private void sendDefaultEffect (Player player, int time) {

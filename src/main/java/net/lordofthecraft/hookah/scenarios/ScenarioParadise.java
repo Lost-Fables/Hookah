@@ -5,12 +5,13 @@ import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 import net.lordofthecraft.hookah.HookahPlugin;
 import net.lordofthecraft.hookah.PacketHandler;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_12_R1.EntityArmorStand;
-import net.minecraft.server.v1_12_R1.EntityCow;
+import net.minecraft.server.v1_13_R2.EntityArmorStand;
+import net.minecraft.server.v1_13_R2.EntityCow;
+import net.minecraft.server.v1_13_R2.IChatBaseComponent.ChatSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -43,37 +44,27 @@ public class ScenarioParadise extends Scenario{
 	public boolean play() {
 		PacketHandler.toggleRedTint(player, true);
 		player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 800, 1), true);
-		player.playSound(player.getLocation(), Sound.RECORD_CHIRP, 1f, 1f);
+		player.playSound(player.getLocation(), Sound.MUSIC_DISC_CHIRP, 1f, 1f);
 		
 		//Spawn the 3 cows that circle the player's head
 		for (int i = 0; i < 3; i++) {
-			tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
-				public void run() {
-					floatingCows.add(new FloatingCow());
-				}
-			}, 16 * i));
+			tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, () -> floatingCows.add(new FloatingCow()), 16 * i));
 		}
 		
 		//Repeating task that summons a floating head every tick
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				//generates a random position in a 32x12x32 cube around the player
-				Location startPosition = new Location(player.getWorld(), 
-						player.getLocation().getX() - 16 + random.nextInt(32), 
-						player.getLocation().getY() - 4 + random.nextInt(12), 
-						player.getLocation().getZ() - 16 + random.nextInt(32));
-				floatingHeads.add(new FloatingHead(startPosition));
-			}
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, () -> {
+			//generates a random position in a 32x12x32 cube around the player
+			Location startPosition = new Location(player.getWorld(),
+					player.getLocation().getX() - 16 + random.nextInt(32),
+					player.getLocation().getY() - 4 + random.nextInt(12),
+					player.getLocation().getZ() - 16 + random.nextInt(32));
+			floatingHeads.add(new FloatingHead(startPosition));
 		}, 0, 2));
 		
 		startFloating();
 		
 		//Task that cleans everything once the scenario is over.
-		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				remove();
-			}
-		}, 800));
+		tasksToCleanup.add(Bukkit.getServer().getScheduler().runTaskLater(HookahPlugin.plugin, () -> remove(), 800));
 		
 		return true;
 	}
@@ -83,24 +74,21 @@ public class ScenarioParadise extends Scenario{
 		stopFloating();	
 		PacketHandler.toggleRedTint(player, false);
 		player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
-		player.stopSound(Sound.RECORD_CHIRP);
+		player.stopSound(Sound.MUSIC_DISC_CHIRP);
 		cleanTasks();
-		if (activeScenarios.containsKey(player.getUniqueId()))
-			activeScenarios.remove(player.getUniqueId());
+		activeScenarios.remove(player.getUniqueId());
 	}
 	
 	private void startFloating() {
-		floatTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, new Runnable() {
-			public void run() {
-				FloatingHead[] headsArray = floatingHeads.toArray(new FloatingHead[floatingHeads.size()]);
-				for (int i = 0; i < headsArray.length; i++) {
-					headsArray[i].move();
-				}
-				
-				FloatingCow[] cowsArray = floatingCows.toArray(new FloatingCow[floatingCows.size()]);
-				for (int i = 0; i < cowsArray.length; i++) {
-					cowsArray[i].move();
-				}
+		floatTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(HookahPlugin.plugin, () -> {
+			FloatingHead[] headsArray = floatingHeads.toArray(new FloatingHead[0]);
+			for (FloatingHead aHeadsArray : headsArray) {
+				aHeadsArray.move();
+			}
+
+			FloatingCow[] cowsArray = floatingCows.toArray(new FloatingCow[0]);
+			for (FloatingCow aCowsArray : cowsArray) {
+				aCowsArray.move();
 			}
 		}, 0, 1);
 	}
@@ -109,13 +97,13 @@ public class ScenarioParadise extends Scenario{
 		if (floatTask != null) {
 			floatTask.cancel();
 		}
-		FloatingHead[] headsArray = floatingHeads.toArray(new FloatingHead[floatingHeads.size()]);
-		for (int i = 0; i < headsArray.length; i++) {
-			headsArray[i].remove();
+		FloatingHead[] headsArray = floatingHeads.toArray(new FloatingHead[0]);
+		for (FloatingHead aHeadsArray : headsArray) {
+			aHeadsArray.remove();
 		}	
-		FloatingCow[] cowsArray = floatingCows.toArray(new FloatingCow[floatingCows.size()]);
-		for (int i = 0; i < cowsArray.length; i++) {
-			cowsArray[i].remove();
+		FloatingCow[] cowsArray = floatingCows.toArray(new FloatingCow[0]);
+		for (FloatingCow aCowsArray : cowsArray) {
+			aCowsArray.remove();
 		}
 	}
 	
@@ -140,11 +128,7 @@ public class ScenarioParadise extends Scenario{
 			intensity = (Math.random() * 4) + 1;
 			
 			//Attach the head to the armorstand 1 tick later to make sure it's had time to spawn
-			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, new Runnable() {
-				public void run() {
-					PacketHandler.sendEquipment(player, head.getId(), ItemSlot.HEAD, getRandomDecoration());
-				}
-			}, 1);
+			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(HookahPlugin.plugin, () -> PacketHandler.sendEquipment(player, head.getId(), ItemSlot.HEAD, getRandomDecoration()), 1);
 		}
 		
 		//Moves the head to the next position to simulate bouncing
@@ -170,7 +154,7 @@ public class ScenarioParadise extends Scenario{
 		public FloatingCow () {
 			cow = new EntityCow(((CraftWorld) player.getWorld()).getHandle());
 			cow.setLocation(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(), 0, 0);
-			cow.setCustomName(rainbowColoredName("Disco Cow"));
+			cow.setCustomName(ChatSerializer.a("{\"text\":\"" + rainbowColoredName("Disco Cow") +"\"}"));
 			cow.setCustomNameVisible(true);
 			PacketHandler.spawnNMSLivingEntity(player, cow);
 		}
@@ -195,12 +179,12 @@ public class ScenarioParadise extends Scenario{
 	
 	//Returns the parametered string in rainbow colors
 	private String rainbowColoredName(String name) {
-		String rainbowName = "";
+		StringBuilder rainbowName = new StringBuilder();
 		for (char c: name.toCharArray()) {
-			rainbowName += randomRainbowColor();
-			rainbowName += c;
+			rainbowName.append(randomRainbowColor());
+			rainbowName.append(c);
 		}
-		return rainbowName;
+		return rainbowName.toString();
 	}
 	
 	//Generates a random pretty ChatColor

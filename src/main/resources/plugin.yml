@@ -3,7 +3,7 @@ main: net.lordofthecraft.hookah.HookahPlugin
 version: ${project.version}
 author: dsdevil
 depend: [CustomItem, ProtocolLib, ArcheCore, PacketWrapper]
-soft-depend: [Prism]
+soft-depend: [Omniscience]
 api-version: 1.13
 
 commands:

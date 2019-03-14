@@ -155,10 +155,10 @@ public class Listeners implements Listener{
 
         //light drug
 		if (e.getCurrentItem().getItemMeta().equals(Hookah.getInterfaceItems().get(2).getItemMeta())) {
-			if (e.getInventory().getItem(16) == null) return;
+			ItemStack item = e.getInventory().getItem(16);
+			if (item == null) return;
             for (Recipe recipe : Recipe.getRecipes()) {
-				if (e.getInventory().getItem(16).getItemMeta().equals(recipe.getDrugItem().getItemMeta()) &&
-                        CustomTag.hasCustomTag(e.getInventory().getItem(16), "isDrug")) {
+				if (item.isSimilar(recipe.getDrugItem())) {
 					currentHookah.lightDrug(recipe);
 					return;
 				}

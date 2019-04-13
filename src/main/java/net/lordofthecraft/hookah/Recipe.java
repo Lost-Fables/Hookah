@@ -52,7 +52,7 @@ public class Recipe {
 	//Adds a NBT to the drug item for future identification purposes
 	private void setDrugItem(ItemStack drugItem) {
         CustomTag tag = new CustomTag();
-        tag.put("isDrug", "true");
+        tag.put("isDrug", "yes");
         this.drugItem = tag.apply(drugItem);
 	}
 	

@@ -42,7 +42,7 @@ public class Listeners implements Listener{
 		loggingEnabled = (plugin.getServer().getPluginManager().getPlugin("Omniscience") != null);
 	}
 
-	@EventHandler(ignoreCancelled = false, priority = EventPriority.HIGH)
+	@EventHandler(ignoreCancelled = false, priority = EventPriority.LOW)
 	public void onOpenInventory(InventoryOpenEvent e) {
 		InventoryHolder ih = e.getInventory().getHolder();
 		if (ih instanceof BrewingStand) {
@@ -109,7 +109,7 @@ public class Listeners implements Listener{
         
     }
 	
-	@EventHandler 
+	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) {
 		//GREAT WALL OF GYNA
 		if (!(e.getInventory().getSize() > 31)) return;
@@ -176,7 +176,7 @@ public class Listeners implements Listener{
 	public void onMilkConsume(PlayerItemConsumeEvent e) {
 		if (e.getItem().getType() != Material.MILK_BUCKET) return;
 		if (DefaultHigh.getActiveHighs().containsKey(e.getPlayer().getUniqueId())) {
-			DefaultHigh.remove(e.getPlayer());		
+			DefaultHigh.remove(e.getPlayer());
 			e.getPlayer().sendMessage(ChatColor.AQUA + "Your vision clears and you suddenly feel a lot better.");
 		}
 	}
